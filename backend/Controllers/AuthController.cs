@@ -55,10 +55,10 @@ public class AuthController : ControllerBase
 
     public class ResetPasswordRequest
     {
-    public string Email { get; set; } = default!;
-    public string Code { get; set; } = default!;
-    public string NewPassword { get; set; } = default!;
-    public string NewPasswordConfirm { get; set; } = default!;
+        public string Email { get; set; } = default!;
+        public string Code { get; set; } = default!;
+        public string NewPassword { get; set; } = default!;
+        public string NewPasswordConfirm { get; set; } = default!;
     }
 
     // POST /api/Auth/login
@@ -67,23 +67,24 @@ public class AuthController : ControllerBase
     {
         // Email veya şifre boşsa
         if (string.IsNullOrWhiteSpace(request.Email) || string.IsNullOrWhiteSpace(request.Password))
-            return BadRequest(new { message = "Email ve şifre gerekli." });
+            return BadRequest(new { success = false, message = "Email ve şifre gerekli." });
 
         // Veritabanında kullanıcıyı bul
         var user = await _db.Users.FirstOrDefaultAsync(u => u.Email == request.Email);
         if (user == null)
-            return Unauthorized(new { message = "Kullanıcı bulunamadı veya şifre hatalı." });
+            return Unauthorized(new { success = false, message = "Kullanıcı bulunamadı veya şifre hatalı." });
 
         // BCrypt ile şifreyi karşılaştır
         var ok = BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash);
         if (!ok)
-            return Unauthorized(new { message = "Kullanıcı bulunamadı veya şifre hatalı." });
+            return Unauthorized(new { success = false, message = "Kullanıcı bulunamadı veya şifre hatalı." });
 
         //  JWT üret ve döndür
         var token = GenerateJwt(user.Id, user.Email, user.Role);
 
         return Ok(new
         {
+            success = true,
             token,
             user = new { user.Id, user.FullName, user.Email, user.Role }
         });
@@ -96,16 +97,16 @@ public class AuthController : ControllerBase
         // Tüm alanların dolu olduğunu kontrol et
         if (string.IsNullOrWhiteSpace(request.Email) || string.IsNullOrWhiteSpace(request.Password) 
         || string.IsNullOrWhiteSpace(request.FullName) || string.IsNullOrWhiteSpace(request.PasswordConfirm))
-            return BadRequest(new { message = "Lütfen tüm alanları doldurun." });
+            return BadRequest(new { success = false, message = "Lütfen tüm alanları doldurun." });
 
         // Şifreler eşleşmiyorsa
         if (request.Password != request.PasswordConfirm)
-            return BadRequest(new { message = "Şifreler eşleşmiyor." });
+            return BadRequest(new { success = false, message = "Şifreler eşleşmiyor." });
 
         // Aynı email ile kullanıcı var mı kontrol et
         var existingUser = await _db.Users.AnyAsync(u => u.Email == request.Email);
         if (existingUser)
-            return BadRequest(new { message = "Bu email ile zaten bir kullanıcı mevcut." });
+            return BadRequest(new { success = false, message = "Bu email ile zaten bir kullanıcı mevcut." });
 
         // Yeni kullanıcı oluştur
         var user = new Models.User
@@ -124,100 +125,92 @@ public class AuthController : ControllerBase
 
         return Ok(new
         {
+            success = true,
             token,
             user = new { user.Id, user.FullName, user.Email, user.Role }
         });
     }
 
+
+    // POST /api/Auth/forgot-password - 1. Adım: Email'e kod gönder
     [HttpPost("forgot-password")]
     public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordRequest request)
     {
         if (string.IsNullOrWhiteSpace(request.Email))
-            return BadRequest(new { message = "Email gerekli." });
+            return BadRequest(new { success = false, message = "Email gerekli." });
 
+        // Kullanıcıyı bul
         var user = await _db.Users.FirstOrDefaultAsync(u => u.Email == request.Email);
         if (user == null)
-            return NotFound(new { message = "Bu email ile kayıtlı kullanıcı bulunamadı." });
+            return BadRequest("Bu email sistemde kayıtlı değil!");
 
-        // 6 haneli rastgele kod oluştur
-        var code = new Random().Next(100000, 999999).ToString();
-        
-        // Kodu veritabanına kaydet (10 dakika geçerli)
+        // 6 haneli rastgele kod üret
+        var random = new Random();
+        var code = random.Next(100000, 999999).ToString();
+
+        // Kodu ve son kullanma tarihini kullanıcıya kaydet (10 dakika geçerli)
         user.VerificationCode = code;
         user.VerificationCodeExpires = DateTime.UtcNow.AddMinutes(10);
         await _db.SaveChangesAsync();
 
-        // E-posta gönder
-        try
-        {
-            await _emailService.SendVerificationCodeAsync(user.Email, code);
-            
-            // Development ortamında kodu response'da da döndür
-            #if DEBUG
-            return Ok(new { 
-                message = "Doğrulama kodu e-posta adresinize gönderildi.",
-                code = code // Sadece test için
-            });
-            #else
-            return Ok(new { message = "Doğrulama kodu e-posta adresinize gönderildi." });
-            #endif
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, new { message = "E-posta gönderilirken bir hata oluştu.", error = ex.Message });
-        }
+        // Email gönder (mock service konsola yazdırır)
+        await _emailService.SendVerificationCodeAsync(user.Email, code);
+
+        return Ok(new { success = true, message = "Doğrulama kodu email adresinize gönderildi." });
     }
 
+    // POST /api/Auth/verify-code - 2. Adım: Kodu doğrula
     [HttpPost("verify-code")]
     public async Task<IActionResult> VerifyCode([FromBody] VerifyCodeRequest request)
     {
         if (string.IsNullOrWhiteSpace(request.Email) || string.IsNullOrWhiteSpace(request.Code))
-            return BadRequest(new { message = "Email ve kod gerekli." });
+            return BadRequest(new { success = false, message = "Email ve kod gerekli." });
 
+        // Kullanıcıyı bul
         var user = await _db.Users.FirstOrDefaultAsync(u => u.Email == request.Email);
         if (user == null)
-            return NotFound(new { message = "Kullanıcı bulunamadı." });
+            return BadRequest(new { success = false, message = "Geçersiz email veya kod." });
 
         // Kod kontrolü
         if (user.VerificationCode != request.Code)
-            return BadRequest(new { message = "Geçersiz kod." });
+            return BadRequest(new { success = false, message = "Geçersiz kod." });
 
-        // Süre kontrolü
+        // Kodun süresi dolmuş mu?
         if (user.VerificationCodeExpires == null || user.VerificationCodeExpires < DateTime.UtcNow)
-            return BadRequest(new { message = "Kod süresi dolmuş. Lütfen yeni bir kod isteyin." });
+            return BadRequest(new { success = false, message = "Kodun süresi dolmuş. Lütfen yeni kod isteyin." });
 
-        return Ok(new { message = "Kod doğrulandı. Şifrenizi sıfırlayabilirsiniz." });
+        return Ok(new { success = true, message = "Kod doğrulandı. Yeni şifrenizi belirleyebilirsiniz." });
     }
 
+    // POST /api/Auth/reset-password - 3. Adım: Yeni şifre belirle
     [HttpPost("reset-password")]
     public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordRequest request)
     {
-        if (string.IsNullOrWhiteSpace(request.Email) || string.IsNullOrWhiteSpace(request.Code) 
-            || string.IsNullOrWhiteSpace(request.NewPassword) || string.IsNullOrWhiteSpace(request.NewPasswordConfirm))
-            return BadRequest(new { message = "Tüm alanlar gerekli." });
+        // Validasyon
+        if (string.IsNullOrWhiteSpace(request.Email) || string.IsNullOrWhiteSpace(request.Code))
+            return BadRequest(new { success = false, message = "Email ve kod gerekli." });
+
+        if (string.IsNullOrWhiteSpace(request.NewPassword) || string.IsNullOrWhiteSpace(request.NewPasswordConfirm))
+            return BadRequest(new { success = false, message = "Şifre alanları gerekli." });
 
         if (request.NewPassword != request.NewPasswordConfirm)
-            return BadRequest(new { message = "Şifreler aynı olmalı." });
+            return BadRequest(new { success = false, message = "Şifreler eşleşmiyor." });
 
+        // Kullanıcıyı bul
         var user = await _db.Users.FirstOrDefaultAsync(u => u.Email == request.Email);
         if (user == null)
-            return NotFound(new { message = "Kullanıcı bulunamadı." });
-
-        // Kod kontrolü
-        if (user.VerificationCode != request.Code)
-            return BadRequest(new { message = "Geçersiz kod." });
-
-        // Süre kontrolü
-        if (user.VerificationCodeExpires == null || user.VerificationCodeExpires < DateTime.UtcNow)
-            return BadRequest(new { message = "Kod süresi dolmuş." });
+            return BadRequest(new { success = false, message = "Geçersiz email veya kod." });
 
         // Şifreyi güncelle
         user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.NewPassword);
+        
+        // Kullanılmış kodu temizle
         user.VerificationCode = null;
         user.VerificationCodeExpires = null;
+        
         await _db.SaveChangesAsync();
 
-        return Ok(new { message = "Şifreniz başarıyla sıfırlandı." });
+        return Ok(new { success = true, message = "Şifreniz başarıyla değiştirildi. Artık giriş yapabilirsiniz." });
     }
 
     // Token üretme fonksiyonu
@@ -227,6 +220,7 @@ public class AuthController : ControllerBase
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwt["Key"]!));
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
+         // Kullanıcı bilgilerini token'a ekle
         var claims = new List<Claim>
         {
             new Claim(JwtRegisteredClaimNames.Sub, userId.ToString()),
@@ -235,6 +229,7 @@ public class AuthController : ControllerBase
             new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
         };
 
+        // Token'ı imzala (şifrele)
         var token = new JwtSecurityToken(
             issuer: jwt["Issuer"],
             audience: jwt["Audience"],
@@ -244,6 +239,7 @@ public class AuthController : ControllerBase
             signingCredentials: creds
         );
 
+        // String'e çevir ve döndür
         return new JwtSecurityTokenHandler().WriteToken(token);
     }
 }

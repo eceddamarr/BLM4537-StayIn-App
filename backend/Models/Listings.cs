@@ -3,11 +3,8 @@ namespace StayIn.Api.Models
     public class Listing
     {
         public int Id { get; set; }
-        
-        // Hangi kullanıcının ilanı? (Nullable - seed data için)
         public int? UserId { get; set; }
         public User? User { get; set; }
-        
         public string PlaceType { get; set; } = string.Empty;
         public string AccommodationType { get; set; } = string.Empty;
         public int Guests { get; set; }

@@ -13,7 +13,7 @@ public class AppDbContext : DbContext
     public DbSet<User> Users => Set<User>();
     public DbSet<Listing> Listings => Set<Listing>();
 
-    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    protected override void OnModelCreating(ModelBuilder modelBuilder)   //Veritabanı tablolarının ve alanlarının detaylı yapılandırması
     {
         base.OnModelCreating(modelBuilder);
 
@@ -41,11 +41,61 @@ public class AppDbContext : DbContext
             .IsRequired()
             .HasMaxLength(1000);
 
+        // Örnek kullanıcılar
+        modelBuilder.Entity<User>().HasData(
+            new User
+            {
+                Id = 1,
+                FullName = "Ahmet Yılmaz",
+                Email = "ahmet@example.com",
+                PasswordHash = "$2a$11$5Z3Z5Z3Z5Z3Z5Z3Z5Z3Z5OqK5Z3Z5Z3Z5Z3Z5Z3Z5Z3Z5Z3Z5Z3",
+                Role = "User",
+                Favorites = new List<int>()
+            },
+            new User
+            {
+                Id = 2,
+                FullName = "Ayşe Demir",
+                Email = "ayse@stayin.dev",
+                PasswordHash = "$2a$11$5Z3Z5Z3Z5Z3Z5Z3Z5Z3Z5OqK5Z3Z5Z3Z5Z3Z5Z3Z5Z3Z5Z3Z5Z3",
+                Role = "User",
+                Favorites = new List<int>()
+            },
+            new User
+            {
+                Id = 3,
+                FullName = "Mehmet Kaya",
+                Email = "mehmet@stayin.dev",
+                PasswordHash = "$2a$11$5Z3Z5Z3Z5Z3Z5Z3Z5Z3Z5OqK5Z3Z5Z3Z5Z3Z5Z3Z5Z3Z5Z3Z5Z3",
+                Role = "User",
+                Favorites = new List<int>()
+            },
+            new User
+            {
+                Id = 4,
+                FullName = "Zeynep Şahin",
+                Email = "zeynep@stayin.dev",
+                PasswordHash = "$2a$11$5Z3Z5Z3Z5Z3Z5Z3Z5Z3Z5OqK5Z3Z5Z3Z5Z3Z5Z3Z5Z3Z5Z3Z5Z3",
+                Role = "User",
+                Favorites = new List<int>()
+            },
+            new User
+            {
+                Id = 5,
+                FullName = "Can Öztürk",
+                Email = "can@stayin.dev",
+                PasswordHash = "$2a$11$5Z3Z5Z3Z5Z3Z5Z3Z5Z3Z5OqK5Z3Z5Z3Z5Z3Z5Z3Z5Z3Z5Z3Z5Z3",
+                Role = "User",
+                Favorites = new List<int>()
+            }
+        );
+
         // Örnek ilanlar
         modelBuilder.Entity<Listing>().HasData(
             new Listing
             {
                 Id = 1,
+                UserId = 1,
                 PlaceType = "Daire",
                 AccommodationType = "Bütün mekan",
                 Guests = 4,
@@ -75,6 +125,7 @@ public class AppDbContext : DbContext
             new Listing
             {
                 Id = 2,
+                UserId = 1,
                 PlaceType = "Villa",
                 AccommodationType = "Bütün mekan",
                 Guests = 8,
@@ -104,6 +155,7 @@ public class AppDbContext : DbContext
             new Listing
             {
                 Id = 3,
+                UserId = 2,
                 PlaceType = "Ev",
                 AccommodationType = "Bütün mekan",
                 Guests = 6,
@@ -133,6 +185,7 @@ public class AppDbContext : DbContext
             new Listing
             {
                 Id = 4,
+                UserId = 2,
                 PlaceType = "Kulübe",
                 AccommodationType = "Bütün mekan",
                 Guests = 3,
@@ -162,6 +215,7 @@ public class AppDbContext : DbContext
             new Listing
             {
                 Id = 5,
+                UserId = 2,
                 PlaceType = "Daire",
                 AccommodationType = "Bütün mekan",
                 Guests = 2,
@@ -190,6 +244,7 @@ public class AppDbContext : DbContext
             new Listing
             {
                 Id = 6,
+                UserId = 3,
                 PlaceType = "Otel Odası",
                 AccommodationType = "Özel oda",
                 Guests = 2,
@@ -218,6 +273,7 @@ public class AppDbContext : DbContext
             new Listing
             {
                 Id = 7,
+                UserId = 3,
                 PlaceType = "Villa",
                 AccommodationType = "Bütün mekan",
                 Guests = 10,
@@ -246,6 +302,7 @@ public class AppDbContext : DbContext
             new Listing
             {
                 Id = 8,
+                UserId = 3,
                 PlaceType = "Daire",
                 AccommodationType = "Bütün mekan",
                 Guests = 3,
@@ -274,6 +331,7 @@ public class AppDbContext : DbContext
             new Listing
             {
                 Id = 9,
+                UserId = 4,
                 PlaceType = "Ev",
                 AccommodationType = "Bütün mekan",
                 Guests = 5,
@@ -302,6 +360,7 @@ public class AppDbContext : DbContext
             new Listing
             {
                 Id = 10,
+                UserId = 4,
                 PlaceType = "Daire",
                 AccommodationType = "Bütün mekan",
                 Guests = 4,
@@ -330,6 +389,7 @@ public class AppDbContext : DbContext
             new Listing
             {
                 Id = 11,
+                UserId = 4,
                 PlaceType = "Villa",
                 AccommodationType = "Bütün mekan",
                 Guests = 6,
@@ -358,6 +418,7 @@ public class AppDbContext : DbContext
             new Listing
             {
                 Id = 12,
+                UserId = 5,
                 PlaceType = "Kulübe",
                 AccommodationType = "Bütün mekan",
                 Guests = 2,
@@ -386,6 +447,7 @@ public class AppDbContext : DbContext
             new Listing
             {
                 Id = 13,
+                UserId = 5,
                 PlaceType = "Daire",
                 AccommodationType = "Bütün mekan",
                 Guests = 4,
@@ -414,6 +476,7 @@ public class AppDbContext : DbContext
             new Listing
             {
                 Id = 14,
+                UserId = 5,
                 PlaceType = "Ev",
                 AccommodationType = "Bütün mekan",
                 Guests = 7,
@@ -442,6 +505,7 @@ public class AppDbContext : DbContext
             new Listing
             {
                 Id = 15,
+                UserId = 1,
                 PlaceType = "Daire",
                 AccommodationType = "Bütün mekan",
                 Guests = 3,
@@ -470,6 +534,7 @@ public class AppDbContext : DbContext
             new Listing
             {
                 Id = 16,
+                UserId = 1,
                 PlaceType = "Villa",
                 AccommodationType = "Bütün mekan",
                 Guests = 12,
@@ -498,6 +563,7 @@ public class AppDbContext : DbContext
             new Listing
             {
                 Id = 17,
+                UserId = 2,
                 PlaceType = "Otel Odası",
                 AccommodationType = "Özel oda",
                 Guests = 2,
@@ -526,6 +592,7 @@ public class AppDbContext : DbContext
             new Listing
             {
                 Id = 18,
+                UserId = 2,
                 PlaceType = "Daire",
                 AccommodationType = "Bütün mekan",
                 Guests = 5,
@@ -554,6 +621,7 @@ public class AppDbContext : DbContext
             new Listing
             {
                 Id = 19,
+                UserId = 3,
                 PlaceType = "Kulübe",
                 AccommodationType = "Bütün mekan",
                 Guests = 4,
@@ -582,6 +650,7 @@ public class AppDbContext : DbContext
             new Listing
             {
                 Id = 20,
+                UserId = 3,
                 PlaceType = "Ev",
                 AccommodationType = "Bütün mekan",
                 Guests = 6,
@@ -610,6 +679,7 @@ public class AppDbContext : DbContext
             new Listing
             {
                 Id = 21,
+                UserId = 4,
                 PlaceType = "Villa",
                 AccommodationType = "Bütün mekan",
                 Guests = 8,
@@ -638,6 +708,7 @@ public class AppDbContext : DbContext
             new Listing
             {
                 Id = 22,
+                UserId = 4,
                 PlaceType = "Daire",
                 AccommodationType = "Bütün mekan",
                 Guests = 3,
@@ -666,6 +737,7 @@ public class AppDbContext : DbContext
             new Listing
             {
                 Id = 23,
+                UserId = 5,
                 PlaceType = "Ev",
                 AccommodationType = "Bütün mekan",
                 Guests = 5,
@@ -694,6 +766,7 @@ public class AppDbContext : DbContext
             new Listing
             {
                 Id = 24,
+                UserId = 5,
                 PlaceType = "Otel Odası",
                 AccommodationType = "Özel oda",
                 Guests = 2,
@@ -722,13 +795,14 @@ public class AppDbContext : DbContext
             new Listing
             {
                 Id = 25,
+                UserId = 1,
                 PlaceType = "Villa",
                 AccommodationType = "Bütün mekan",
                 Guests = 10,
                 Bedrooms = 5,
                 Beds = 6,
                 Bathrooms = 4,
-                Title = "Bitez Mandalinaköy Villa",
+                Title = "Bitez Mandalinakoy Villa",
                 Description = "Bitez'de mandalina bahçeleri arasında, denize yakın özel havuzlu villa.",
                 Price = 4800,
                 AddressCountry = "Türkiye",
@@ -750,6 +824,7 @@ public class AppDbContext : DbContext
             new Listing
             {
                 Id = 26,
+                UserId = 1,
                 PlaceType = "Daire",
                 AccommodationType = "Bütün mekan",
                 Guests = 4,
@@ -778,13 +853,14 @@ public class AppDbContext : DbContext
             new Listing
             {
                 Id = 27,
+                UserId = 2,
                 PlaceType = "Kulübe",
                 AccommodationType = "Bütün mekan",
                 Guests = 2,
                 Bedrooms = 1,
                 Beds = 1,
                 Bathrooms = 1,
-                Title = "Ayder Yaylası Dağ Evi",
+                Title = "Ayder Yaylaı Dağ Evi",
                 Description = "Ayder'de dere kenarında ahşap dağ evi. Şömine, doğa ve huzur.",
                 Price = 1900,
                 AddressCountry = "Türkiye",
@@ -806,6 +882,7 @@ public class AppDbContext : DbContext
             new Listing
             {
                 Id = 28,
+                UserId = 2,
                 PlaceType = "Daire",
                 AccommodationType = "Bütün mekan",
                 Guests = 3,
@@ -834,6 +911,7 @@ public class AppDbContext : DbContext
             new Listing
             {
                 Id = 29,
+                UserId = 3,
                 PlaceType = "Villa",
                 AccommodationType = "Bütün mekan",
                 Guests = 9,

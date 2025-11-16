@@ -10,7 +10,7 @@ namespace StayIn.Api.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize]
+    [Authorize] // Tüm eylemler için kimlik doğrulama gerektir
     public class MyListingsController : ControllerBase
     {
         private readonly AppDbContext _context;
@@ -24,9 +24,10 @@ namespace StayIn.Api.Controllers
         [HttpGet]
         public async Task<IActionResult> GetMyListings()
         {
-            var userIdClaim = User.FindFirst(System.IdentityModel.Tokens.Jwt.JwtRegisteredClaimNames.Sub)?.Value
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value
+                ?? User.FindFirst(System.IdentityModel.Tokens.Jwt.JwtRegisteredClaimNames.Sub)?.Value
                 ?? User.FindFirst("sub")?.Value
-                ?? User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                ?? User.FindFirst("userId")?.Value;
                 
             if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out int userId))
             {
@@ -34,7 +35,7 @@ namespace StayIn.Api.Controllers
             }
 
             var myListings = await _context.Listings
-                .Where(l => l.UserId == userId)
+                .Where(l => l.UserId.HasValue && l.UserId.Value == userId)
                 .OrderByDescending(l => l.CreatedAt)
                 .Select(l => new
                 {
@@ -73,9 +74,10 @@ namespace StayIn.Api.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateListing([FromBody] ListingDTO dto)
         {
-            var userIdClaim = User.FindFirst(System.IdentityModel.Tokens.Jwt.JwtRegisteredClaimNames.Sub)?.Value
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value
+                ?? User.FindFirst(System.IdentityModel.Tokens.Jwt.JwtRegisteredClaimNames.Sub)?.Value
                 ?? User.FindFirst("sub")?.Value
-                ?? User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                ?? User.FindFirst("userId")?.Value;
                 
             if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out int userId))
             {
@@ -118,9 +120,10 @@ namespace StayIn.Api.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateListing(int id, [FromBody] ListingDTO dto)
         {
-            var userIdClaim = User.FindFirst(System.IdentityModel.Tokens.Jwt.JwtRegisteredClaimNames.Sub)?.Value
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value
+                ?? User.FindFirst(System.IdentityModel.Tokens.Jwt.JwtRegisteredClaimNames.Sub)?.Value
                 ?? User.FindFirst("sub")?.Value
-                ?? User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                ?? User.FindFirst("userId")?.Value;
                 
             if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out int userId))
             {
@@ -134,7 +137,7 @@ namespace StayIn.Api.Controllers
             }
 
             // Sadece kendi ilanını güncelleyebilir
-            if (listing.UserId != userId)
+            if (!listing.UserId.HasValue || listing.UserId.Value != userId)
             {
                 return Forbid();
             }
@@ -170,9 +173,10 @@ namespace StayIn.Api.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteListing(int id)
         {
-            var userIdClaim = User.FindFirst(System.IdentityModel.Tokens.Jwt.JwtRegisteredClaimNames.Sub)?.Value
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value
+                ?? User.FindFirst(System.IdentityModel.Tokens.Jwt.JwtRegisteredClaimNames.Sub)?.Value
                 ?? User.FindFirst("sub")?.Value
-                ?? User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                ?? User.FindFirst("userId")?.Value;
                 
             if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out int userId))
             {
@@ -186,7 +190,7 @@ namespace StayIn.Api.Controllers
             }
 
             // Sadece kendi ilanını silebilir
-            if (listing.UserId != userId)
+            if (!listing.UserId.HasValue || listing.UserId.Value != userId)
             {
                 return Forbid();
             }

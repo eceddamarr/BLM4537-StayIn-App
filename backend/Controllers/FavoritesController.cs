@@ -8,7 +8,7 @@ namespace StayIn.Api.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize]
+    [Authorize] // Tüm eylemler için kimlik doğrulama gerektir
     public class FavoritesController : ControllerBase
     {
         private readonly AppDbContext _context;
@@ -107,7 +107,7 @@ namespace StayIn.Api.Controllers
             // Favorilere ekle
             user.Favorites.Add(listingId);
             
-            // ⚡ ÖNEMLI: Entity Framework'ün List değişikliğini algılaması için
+            // Entity Framework'ün List değişikliğini algılaması için
             _context.Entry(user).Property(u => u.Favorites).IsModified = true;
             await _context.SaveChangesAsync();
 
@@ -142,7 +142,7 @@ namespace StayIn.Api.Controllers
             // Favorilerden çıkar
             user.Favorites.Remove(listingId);
             
-            // ⚡ ÖNEMLI: Entity Framework'ün List değişikliğini algılaması için
+            // Entity Framework'ün List değişikliğini algılaması için
             _context.Entry(user).Property(u => u.Favorites).IsModified = true;
             await _context.SaveChangesAsync();
 

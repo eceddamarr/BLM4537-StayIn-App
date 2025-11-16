@@ -17,14 +17,7 @@ builder.Services.AddDbContext<AppDbContext>(opts =>
     opts.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // Email Service - Geliştirme için Mock kullan
-if (builder.Environment.IsDevelopment())
-{
-    builder.Services.AddScoped<IEmailService, MockEmailService>();
-}
-else
-{
-    builder.Services.AddScoped<IEmailService, EmailService>();
-}
+builder.Services.AddScoped<IEmailService, MockEmailService>();
 
 // CORS (Vue 5173, 5174 için izin)
 builder.Services.AddCors(options =>
@@ -83,7 +76,7 @@ using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     db.Database.Migrate(); // Migration'ları uygula
-    
+
     // Eğer hiç kullanıcı yoksa bir admin ekle
     if (!db.Users.Any())
     {

@@ -131,7 +131,8 @@ namespace StayinApi.Migrations
                             PhotoUrls = "[\"https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=800\",\"https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=800\"]",
                             PlaceType = "Daire",
                             Price = 2500m,
-                            Title = "Deniz Manzaralı Lüks Daire"
+                            Title = "Deniz Manzaralı Lüks Daire",
+                            UserId = 1
                         },
                         new
                         {
@@ -156,7 +157,8 @@ namespace StayinApi.Migrations
                             PhotoUrls = "[\"https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=800\",\"https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800\"]",
                             PlaceType = "Villa",
                             Price = 5000m,
-                            Title = "Modern Villa Havuz ve Bahçe"
+                            Title = "Modern Villa Havuz ve Bahçe",
+                            UserId = 1
                         },
                         new
                         {
@@ -181,7 +183,8 @@ namespace StayinApi.Migrations
                             PhotoUrls = "[\"https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800\",\"https://images.unsplash.com/photo-1582268611958-ebfd161ef9cf?w=800\"]",
                             PlaceType = "Ev",
                             Price = 3200m,
-                            Title = "Plaja Sıfır Butik Otel"
+                            Title = "Plaja Sıfır Butik Otel",
+                            UserId = 2
                         },
                         new
                         {
@@ -206,7 +209,8 @@ namespace StayinApi.Migrations
                             PhotoUrls = "[\"https://images.unsplash.com/photo-1587061949409-02df41d5e562?w=800\",\"https://images.unsplash.com/photo-1542718610-a1d656d1884c?w=800\"]",
                             PlaceType = "Kulübe",
                             Price = 1800m,
-                            Title = "Doğa İçinde Bungalov"
+                            Title = "Doğa İçinde Bungalov",
+                            UserId = 2
                         },
                         new
                         {
@@ -230,7 +234,8 @@ namespace StayinApi.Migrations
                             PhotoUrls = "[\"https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800\"]",
                             PlaceType = "Daire",
                             Price = 2200m,
-                            Title = "Alaçatı Merkezde Taş Ev"
+                            Title = "Alaçatı Merkezde Taş Ev",
+                            UserId = 2
                         },
                         new
                         {
@@ -255,7 +260,8 @@ namespace StayinApi.Migrations
                             PhotoUrls = "[\"https://images.unsplash.com/photo-1611892440504-42a792e24d32?w=800\"]",
                             PlaceType = "Otel Odası",
                             Price = 3500m,
-                            Title = "Boğaz Manzaralı Lüks Suit"
+                            Title = "Boğaz Manzaralı Lüks Suit",
+                            UserId = 3
                         },
                         new
                         {
@@ -280,7 +286,8 @@ namespace StayinApi.Migrations
                             PhotoUrls = "[\"https://images.unsplash.com/photo-1602343168117-bb8ffe3e2e9f?w=800\"]",
                             PlaceType = "Villa",
                             Price = 6500m,
-                            Title = "Kaş'ta Panoramik Deniz Manzaralı Villa"
+                            Title = "Kaş'ta Panoramik Deniz Manzaralı Villa",
+                            UserId = 3
                         },
                         new
                         {
@@ -305,7 +312,8 @@ namespace StayinApi.Migrations
                             PhotoUrls = "[\"https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=800\"]",
                             PlaceType = "Daire",
                             Price = 1900m,
-                            Title = "Antalya Konyaaltı Plaj Dairesi"
+                            Title = "Antalya Konyaaltı Plaj Dairesi",
+                            UserId = 3
                         },
                         new
                         {
@@ -329,7 +337,8 @@ namespace StayinApi.Migrations
                             PhotoUrls = "[\"https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=800\"]",
                             PlaceType = "Ev",
                             Price = 2800m,
-                            Title = "Fethiye Ölüdeniz'de Bahçeli Ev"
+                            Title = "Fethiye Ölüdeniz'de Bahçeli Ev",
+                            UserId = 4
                         },
                         new
                         {
@@ -354,7 +363,8 @@ namespace StayinApi.Migrations
                             PhotoUrls = "[\"https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800\"]",
                             PlaceType = "Daire",
                             Price = 1700m,
-                            Title = "Konak Meydanı Manzaralı Loft"
+                            Title = "Konak Meydanı Manzaralı Loft",
+                            UserId = 4
                         },
                         new
                         {
@@ -379,7 +389,8 @@ namespace StayinApi.Migrations
                             PhotoUrls = "[\"https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=800\"]",
                             PlaceType = "Villa",
                             Price = 4200m,
-                            Title = "Marmaris Havuzlu Triplex Villa"
+                            Title = "Marmaris Havuzlu Triplex Villa",
+                            UserId = 4
                         },
                         new
                         {
@@ -404,7 +415,8 @@ namespace StayinApi.Migrations
                             PhotoUrls = "[\"https://images.unsplash.com/photo-1587061949409-02df41d5e562?w=800\"]",
                             PlaceType = "Kulübe",
                             Price = 2100m,
-                            Title = "Sapanca Göl Kenarı Bungalov"
+                            Title = "Sapanca Göl Kenarı Bungalov",
+                            UserId = 5
                         },
                         new
                         {
@@ -429,7 +441,8 @@ namespace StayinApi.Migrations
                             PhotoUrls = "[\"https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=800\"]",
                             PlaceType = "Daire",
                             Price = 1600m,
-                            Title = "Kadıköy'de Nostaljik Daire"
+                            Title = "Kadıköy'de Nostaljik Daire",
+                            UserId = 5
                         },
                         new
                         {
@@ -453,7 +466,8 @@ namespace StayinApi.Migrations
                             PhotoUrls = "[\"https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800\"]",
                             PlaceType = "Ev",
                             Price = 3800m,
-                            Title = "Side Antik Kent Yakını Villa"
+                            Title = "Side Antik Kent Yakını Villa",
+                            UserId = 5
                         },
                         new
                         {
@@ -478,7 +492,8 @@ namespace StayinApi.Migrations
                             PhotoUrls = "[\"https://images.unsplash.com/photo-1493809842364-78817add7ffb?w=800\"]",
                             PlaceType = "Daire",
                             Price = 1500m,
-                            Title = "Beyoğlu'nda Sanatçı Loft'u"
+                            Title = "Beyoğlu'nda Sanatçı Loft'u",
+                            UserId = 1
                         },
                         new
                         {
@@ -503,7 +518,8 @@ namespace StayinApi.Migrations
                             PhotoUrls = "[\"https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=800\"]",
                             PlaceType = "Villa",
                             Price = 8500m,
-                            Title = "Gökova Körfezi Lüks Villa"
+                            Title = "Gökova Körfezi Lüks Villa",
+                            UserId = 1
                         },
                         new
                         {
@@ -528,7 +544,8 @@ namespace StayinApi.Migrations
                             PhotoUrls = "[\"https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=800\"]",
                             PlaceType = "Otel Odası",
                             Price = 2700m,
-                            Title = "Kapadokya Mağara Otel"
+                            Title = "Kapadokya Mağara Otel",
+                            UserId = 2
                         },
                         new
                         {
@@ -553,7 +570,8 @@ namespace StayinApi.Migrations
                             PhotoUrls = "[\"https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800\"]",
                             PlaceType = "Daire",
                             Price = 2000m,
-                            Title = "Alsancak Marina Manzaralı Daire"
+                            Title = "Alsancak Marina Manzaralı Daire",
+                            UserId = 2
                         },
                         new
                         {
@@ -578,7 +596,8 @@ namespace StayinApi.Migrations
                             PhotoUrls = "[\"https://images.unsplash.com/photo-1542718610-a1d656d1884c?w=800\"]",
                             PlaceType = "Kulübe",
                             Price = 3200m,
-                            Title = "Uludağ Kayak Merkezi Şale"
+                            Title = "Uludağ Kayak Merkezi Şale",
+                            UserId = 3
                         },
                         new
                         {
@@ -602,7 +621,8 @@ namespace StayinApi.Migrations
                             PhotoUrls = "[\"https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800\"]",
                             PlaceType = "Ev",
                             Price = 2900m,
-                            Title = "Datça Eski Datça Taş Ev"
+                            Title = "Datça Eski Datça Taş Ev",
+                            UserId = 3
                         },
                         new
                         {
@@ -627,7 +647,8 @@ namespace StayinApi.Migrations
                             PhotoUrls = "[\"https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=800\"]",
                             PlaceType = "Villa",
                             Price = 5200m,
-                            Title = "Belek Golf Sahalı Villa"
+                            Title = "Belek Golf Sahalı Villa",
+                            UserId = 4
                         },
                         new
                         {
@@ -652,7 +673,8 @@ namespace StayinApi.Migrations
                             PhotoUrls = "[\"https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=800\"]",
                             PlaceType = "Daire",
                             Price = 1800m,
-                            Title = "Bodrum Gümbet Plaj Dairesi"
+                            Title = "Bodrum Gümbet Plaj Dairesi",
+                            UserId = 4
                         },
                         new
                         {
@@ -676,7 +698,8 @@ namespace StayinApi.Migrations
                             PhotoUrls = "[\"https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=800\"]",
                             PlaceType = "Ev",
                             Price = 2300m,
-                            Title = "Çanakkale Assos Köy Evi"
+                            Title = "Çanakkale Assos Köy Evi",
+                            UserId = 5
                         },
                         new
                         {
@@ -701,7 +724,8 @@ namespace StayinApi.Migrations
                             PhotoUrls = "[\"https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800\"]",
                             PlaceType = "Otel Odası",
                             Price = 1400m,
-                            Title = "Şirince Butik Otel Odası"
+                            Title = "Şirince Butik Otel Odası",
+                            UserId = 5
                         },
                         new
                         {
@@ -726,7 +750,8 @@ namespace StayinApi.Migrations
                             PhotoUrls = "[\"https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800\"]",
                             PlaceType = "Villa",
                             Price = 4800m,
-                            Title = "Bitez Mandalinaköy Villa"
+                            Title = "Bitez Mandalinakoy Villa",
+                            UserId = 1
                         },
                         new
                         {
@@ -751,7 +776,8 @@ namespace StayinApi.Migrations
                             PhotoUrls = "[\"https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=800\"]",
                             PlaceType = "Daire",
                             Price = 1650m,
-                            Title = "Alanya Kleopatra Plajı Dairesi"
+                            Title = "Alanya Kleopatra Plajı Dairesi",
+                            UserId = 1
                         },
                         new
                         {
@@ -776,7 +802,8 @@ namespace StayinApi.Migrations
                             PhotoUrls = "[\"https://images.unsplash.com/photo-1587061949409-02df41d5e562?w=800\"]",
                             PlaceType = "Kulübe",
                             Price = 1900m,
-                            Title = "Ayder Yaylası Dağ Evi"
+                            Title = "Ayder Yaylaı Dağ Evi",
+                            UserId = 2
                         },
                         new
                         {
@@ -801,7 +828,8 @@ namespace StayinApi.Migrations
                             PhotoUrls = "[\"https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800\"]",
                             PlaceType = "Daire",
                             Price = 1750m,
-                            Title = "Antalya Kaleiçi Tarihi Daire"
+                            Title = "Antalya Kaleiçi Tarihi Daire",
+                            UserId = 2
                         },
                         new
                         {
@@ -826,7 +854,8 @@ namespace StayinApi.Migrations
                             PhotoUrls = "[\"https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=800\"]",
                             PlaceType = "Villa",
                             Price = 4500m,
-                            Title = "Kuşadası Ladies Beach Villa"
+                            Title = "Kuşadası Ladies Beach Villa",
+                            UserId = 3
                         });
                 });
 
@@ -868,6 +897,53 @@ namespace StayinApi.Migrations
                         .IsUnique();
 
                     b.ToTable("Users");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Email = "ahmet@example.com",
+                            Favorites = "[]",
+                            FullName = "Ahmet Yılmaz",
+                            PasswordHash = "$2a$11$5Z3Z5Z3Z5Z3Z5Z3Z5Z3Z5OqK5Z3Z5Z3Z5Z3Z5Z3Z5Z3Z5Z3Z5Z3",
+                            Role = "User"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Email = "ayse@stayin.dev",
+                            Favorites = "[]",
+                            FullName = "Ayşe Demir",
+                            PasswordHash = "$2a$11$5Z3Z5Z3Z5Z3Z5Z3Z5Z3Z5OqK5Z3Z5Z3Z5Z3Z5Z3Z5Z3Z5Z3Z5Z3",
+                            Role = "User"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Email = "mehmet@stayin.dev",
+                            Favorites = "[]",
+                            FullName = "Mehmet Kaya",
+                            PasswordHash = "$2a$11$5Z3Z5Z3Z5Z3Z5Z3Z5Z3Z5OqK5Z3Z5Z3Z5Z3Z5Z3Z5Z3Z5Z3Z5Z3",
+                            Role = "User"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Email = "zeynep@stayin.dev",
+                            Favorites = "[]",
+                            FullName = "Zeynep Şahin",
+                            PasswordHash = "$2a$11$5Z3Z5Z3Z5Z3Z5Z3Z5Z3Z5OqK5Z3Z5Z3Z5Z3Z5Z3Z5Z3Z5Z3Z5Z3",
+                            Role = "User"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Email = "can@stayin.dev",
+                            Favorites = "[]",
+                            FullName = "Can Öztürk",
+                            PasswordHash = "$2a$11$5Z3Z5Z3Z5Z3Z5Z3Z5Z3Z5OqK5Z3Z5Z3Z5Z3Z5Z3Z5Z3Z5Z3Z5Z3",
+                            Role = "User"
+                        });
                 });
 
             modelBuilder.Entity("StayIn.Api.Models.Listing", b =>
