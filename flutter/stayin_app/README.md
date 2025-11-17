@@ -70,12 +70,6 @@ StayInApp, Flutter ile geliştirilmiş bir konaklama ve ilan yönetim uygulamas�
 - `image_picker`: Fotoğraf seçimi
 - `typeahead`: Adres arama autocomplete
 
-## Geliştirici Notları
-- Kodda fonksiyon başı açıklama yorumları ile okunabilirlik artırılmıştır
-- Mock/sahte veri kaldırılmış, tüm akışlar backend ile entegre
-- Adres ve fotoğraf alanları otomatik doldurulabilir ve düzenlenebilir
-- Tüm akışlar test edilmiş, hata bulunmamıştır
-
 ## Kurulum
 1. Flutter SDK kurulu olmalı
 2. Gerekli paketler yüklenmeli:
