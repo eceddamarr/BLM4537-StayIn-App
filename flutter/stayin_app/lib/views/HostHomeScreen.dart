@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
-import 'package:flutter_map/flutter_map.dart';
-import 'package:latlong2/latlong.dart';
+import 'package:flutter_map/flutter_map.dart';   //Haritayı ekranda göstermek için
+import 'package:latlong2/latlong.dart';         //Enlem boylam bilgisi için 
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
@@ -43,7 +43,7 @@ class _HostHomeScreenState extends State<HostHomeScreen> {
 
   // Map + search controller'ları (state değişkenleri)
   final TextEditingController addressController = TextEditingController();
-  final MapController mapController = MapController();
+  final MapController mapController = MapController();  //Haritayı yönetmek için 
 
 
   // Amenities
@@ -83,6 +83,7 @@ class _HostHomeScreenState extends State<HostHomeScreen> {
   // Step 3: Mock Map
   LatLng? selectedLocation;
 
+  // Widget ilk oluşturulduğunda çalışır, edit modunda eski ilanı yükler
   @override
   void initState() {
     super.initState();
@@ -91,6 +92,7 @@ class _HostHomeScreenState extends State<HostHomeScreen> {
     }
   }
 
+  // Edit modunda mevcut ilanı tüm alanlara doldurur
   void _loadExistingListing() {
     final listing = widget.existingListing!;
     
@@ -192,6 +194,7 @@ class _HostHomeScreenState extends State<HostHomeScreen> {
   // -----------------------------
   // Navigation Logic
   // -----------------------------
+  // İleri butonuna basınca adım değiştirir veya ilanı yayınlar
   void nextStep() async {
     if (!_canProceed(showWarning: true)) return;
 
@@ -203,6 +206,7 @@ class _HostHomeScreenState extends State<HostHomeScreen> {
     }
   }
 
+  // İlanı backend'e kaydeder veya günceller
   Future<void> _publishListing() async {
     // Validate required fields
     if (titleController.text.isEmpty || 
@@ -226,6 +230,17 @@ class _HostHomeScreenState extends State<HostHomeScreen> {
       if (widget.editMode && widget.existingListing != null) {
         // Update existing listing
         final listingId = widget.existingListing!['id'];
+        
+        // Fotoğraf URL'lerini filtrele - sadece geçerli URL'leri gönder
+        // Lokal dosya path'lerini (file://) backend'e gönderme
+        final validPhotoUrls = photoUrls.where((url) {
+          return url.startsWith('http://') || 
+                 url.startsWith('https://') || 
+                 url.startsWith('data:image');
+        }).toList();
+        
+        print('Güncelleme için gönderilen fotoğraf sayısı: ${validPhotoUrls.length}');
+        
         result = await ApiService.updateListing(
           listingId: listingId,
           title: titleController.text,
@@ -247,12 +262,11 @@ class _HostHomeScreenState extends State<HostHomeScreen> {
           region: addressRegionController.text.isEmpty ? null : addressRegionController.text,
           latitude: selectedLocation?.latitude,
           longitude: selectedLocation?.longitude,
-          photoUrls: photoUrls,
+          photoUrls: validPhotoUrls,
         );
       } else {
         // Create new listing
         result = await ApiService.createListing(
-          userEmail: widget.userEmail,
           title: titleController.text,
           description: descriptionController.text,
           placeType: selectedPlace ?? 'Ev',
@@ -279,9 +293,27 @@ class _HostHomeScreenState extends State<HostHomeScreen> {
       if (!mounted) return;
       Navigator.of(context).pop(); // Close loading dialog
 
-      if (result != null && result['success'] == true) {
+      // Başarı durumunu daha esnek kontrol et
+      bool isSuccess = false;
+      String? message;
+      
+      if (result != null) {
+        // success field varsa kontrol et
+        if (result.containsKey('success')) {
+          isSuccess = result['success'] == true;
+        } else {
+          // success field yoksa, message veya listing varsa başarılı say
+          isSuccess = result.containsKey('message') || result.containsKey('listing');
+        }
+        message = result['message']?.toString();
+      }
+
+      if (isSuccess) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(widget.editMode ? 'İlanınız başarıyla güncellendi!' : 'İlanınız başarıyla yayınlandı!')),
+          SnackBar(
+            content: Text(message ?? (widget.editMode ? 'İlanınız başarıyla güncellendi!' : 'İlanınız başarıyla yayınlandı!')),
+            backgroundColor: Colors.green,
+          ),
         );
         
         // Edit modunda ise İlanlarım sayfasına dön, yeni ilan ise ana sayfaya dön
@@ -294,22 +326,36 @@ class _HostHomeScreenState extends State<HostHomeScreen> {
         }
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(result?['message'] ?? (widget.editMode ? 'İlan güncellenemedi.' : 'İlan yayınlanamadı.'))),
+          SnackBar(
+            content: Text(message ?? (widget.editMode ? 'İlan güncellenemedi.' : 'İlan yayınlanamadı.')),
+            backgroundColor: Colors.red,
+          ),
         );
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
       if (!mounted) return;
       Navigator.of(context).pop(); // Close loading dialog
+      
+      // Detaylı hata göster
+      print('Hata detayı: $e');
+      print('Stack trace: $stackTrace');
+      
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Hata: $e')),
+        SnackBar(
+          content: Text('Hata: $e'),
+          backgroundColor: Colors.red,
+          duration: const Duration(seconds: 5),
+        ),
       );
     }
   }
 
+  // Geri butonuna basınca bir önceki adıma döner
   void prevStep() {
     if (currentStep > 0) setState(() => currentStep--);
   }
 
+  // Adım geçişi için gerekli alanlar dolu mu kontrol eder
   bool _canProceed({bool showWarning = false}) {
     if (currentStep == 0 && selectedPlace == null) {
       if (showWarning) _warn('Devam etmek için bir yer türü seçin.');
@@ -322,6 +368,7 @@ class _HostHomeScreenState extends State<HostHomeScreen> {
     return true;
   }
 
+  // Uyarı mesajı gösterir
   void _warn(String msg) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
@@ -557,7 +604,7 @@ class _HostHomeScreenState extends State<HostHomeScreen> {
               mapController: mapController,
               options: MapOptions(
                 // v7: initialCenter / initialZoom kullanılır
-                initialCenter: selectedLocation ?? LatLng(39.92077, 32.85411),
+                initialCenter: selectedLocation ?? LatLng(39.92077, 32.85411),  // Ankara merkez
                 initialZoom: selectedLocation != null ? 15.0 : 13.0,
                 onTap: (tapPos, point) async {
                   // Haritaya tıklanınca reverse geocoding yap
@@ -565,7 +612,7 @@ class _HostHomeScreenState extends State<HostHomeScreen> {
                   final lon = point.longitude;
                   
                   try {
-                    final url = Uri.parse(
+                    final url = Uri.parse(      //koordinattan adres bilgisi alınır 
                       'https://nominatim.openstreetmap.org/reverse'
                       '?lat=$lat'
                       '&lon=$lon'
@@ -620,7 +667,7 @@ class _HostHomeScreenState extends State<HostHomeScreen> {
 
         const SizedBox(height: 12),
 
-        if (selectedLocation != null)
+        if (selectedLocation != null)    //Kullanıcı bir konum seçtiyse, enlem ve boylamı ekranda gösterilir.
           Text(
             "Seçilen konum: "
             "${selectedLocation!.latitude.toStringAsFixed(5)}, "
@@ -668,6 +715,7 @@ class _HostHomeScreenState extends State<HostHomeScreen> {
       );
 
   // Yeni aktif fotoğraf yükleme
+  // Cihazdan birden fazla fotoğraf seçer ve ekler
   Future<void> pickImages() async {
     final List<XFile>? images = await _picker.pickMultiImage(
       imageQuality: 85,
@@ -684,6 +732,7 @@ class _HostHomeScreenState extends State<HostHomeScreen> {
   }
 
   // Helper method to build image widget for different URL types
+  // Fotoğraf URL'sine göre uygun image widget'ı döndürür
   Widget _buildImageWidget(String imageUrl) {
     if (imageUrl.startsWith('data:image')) {
       // Base64 data URI - extract and decode
@@ -947,14 +996,18 @@ class _HostHomeScreenState extends State<HostHomeScreen> {
                     topLeft: Radius.circular(16),
                     topRight: Radius.circular(16),
                   ),
-                  child: Image.network(
-                    photoUrls.isNotEmpty
-                        ? photoUrls.first
-                        : 'https://via.placeholder.com/400x250?text=Önizleme',
-                    width: double.infinity,
-                    height: 220,
-                    fit: BoxFit.cover,
-                  ),
+                  child: photoUrls.isNotEmpty
+                      ? SizedBox(
+                          width: double.infinity,
+                          height: 220,
+                          child: _buildImageWidget(photoUrls.first),
+                        )
+                      : Image.network(
+                          'https://via.placeholder.com/400x250?text=Önizleme',
+                          width: double.infinity,
+                          height: 220,
+                          fit: BoxFit.cover,
+                        ),
                 ),
                 Padding(
                   padding: const EdgeInsets.all(16.0),

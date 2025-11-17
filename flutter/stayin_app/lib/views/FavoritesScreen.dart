@@ -1,10 +1,19 @@
 import 'package:flutter/material.dart';
 import '../services/api_service.dart';
+import 'dart:convert';
+import 'ListingDetailScreen.dart';
 
 class FavoritesScreen extends StatefulWidget {
   final Widget? bottomNavBar;
+  final String? userEmail;
+  final VoidCallback? goToLogin;
   
-  const FavoritesScreen({Key? key, this.bottomNavBar}) : super(key: key);
+  const FavoritesScreen({
+    Key? key, 
+    this.bottomNavBar,
+    this.userEmail,
+    this.goToLogin,
+  }) : super(key: key);
 
   @override
   State<FavoritesScreen> createState() => _FavoritesScreenState();
@@ -81,6 +90,87 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
     }
   }
 
+  // Helper method to build image widget for different URL types
+  Widget _buildImageWidget(String imageUrl, {double? height, double? width}) {
+    if (imageUrl.startsWith('data:image')) {
+      // Base64 data URI - extract and decode
+      try {
+        final base64String = imageUrl.split(',')[1];
+        final bytes = base64Decode(base64String);
+        return Image.memory(
+          bytes,
+          fit: BoxFit.cover,
+          height: height,
+          width: width,
+          errorBuilder: (context, error, stackTrace) {
+            return Container(
+              height: height ?? 200,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [Colors.redAccent.withOpacity(0.7), Colors.orangeAccent.withOpacity(0.7)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+              ),
+              child: Center(
+                child: Icon(
+                  Icons.home,
+                  size: 80,
+                  color: Colors.white.withOpacity(0.9),
+                ),
+              ),
+            );
+          },
+        );
+      } catch (e) {
+        return Container(
+          height: height ?? 200,
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Colors.redAccent.withOpacity(0.7), Colors.orangeAccent.withOpacity(0.7)],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+          ),
+          child: Center(
+            child: Icon(
+              Icons.home,
+              size: 80,
+              color: Colors.white.withOpacity(0.9),
+            ),
+          ),
+        );
+      }
+    } else {
+      // Regular network URL
+      return Image.network(
+        imageUrl,
+        fit: BoxFit.cover,
+        height: height,
+        width: width,
+        errorBuilder: (context, error, stackTrace) {
+          return Container(
+            height: height ?? 200,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Colors.redAccent.withOpacity(0.7), Colors.orangeAccent.withOpacity(0.7)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+            ),
+            child: Center(
+              child: Icon(
+                Icons.home,
+                size: 80,
+                color: Colors.white.withOpacity(0.9),
+              ),
+            ),
+          );
+        },
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -130,7 +220,22 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                 final property = _favorites[index];
                 final listingId = property['id'] as int;
                 
-                return Container(
+                return GestureDetector(
+                  onTap: () {
+                    // İlan detay sayfasına git
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ListingDetailScreen(
+                          listingId: listingId,
+                          isLoggedIn: true, // Favoriler sadece giriş yapmış kullanıcılarda görünür
+                          goToLogin: widget.goToLogin,
+                          userEmail: widget.userEmail,
+                        ),
+                      ),
+                    );
+                  },
+                  child: Container(
                   margin: const EdgeInsets.only(bottom: 20),
                   decoration: BoxDecoration(
                     color: Colors.white,
@@ -158,30 +263,10 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                             property['photoUrls'] != null && (property['photoUrls'] as List).isNotEmpty
                                 ? ClipRRect(
                                     borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-                                    child: Image.network(
+                                    child: _buildImageWidget(
                                       (property['photoUrls'] as List).first,
                                       height: 200,
                                       width: double.infinity,
-                                      fit: BoxFit.cover,
-                                      errorBuilder: (context, error, stackTrace) {
-                                        return Container(
-                                          height: 200,
-                                          decoration: BoxDecoration(
-                                            gradient: LinearGradient(
-                                              colors: [Colors.redAccent.withOpacity(0.7), Colors.orangeAccent.withOpacity(0.7)],
-                                              begin: Alignment.topLeft,
-                                              end: Alignment.bottomRight,
-                                            ),
-                                          ),
-                                          child: Center(
-                                            child: Icon(
-                                              property['image'] ?? Icons.home,
-                                              size: 80,
-                                              color: Colors.white.withOpacity(0.9),
-                                            ),
-                                          ),
-                                        );
-                                      },
                                     ),
                                   )
                                 : Container(
@@ -285,6 +370,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                       ),
                     ],
                   ),
+                ),
                 );
               },
             ),

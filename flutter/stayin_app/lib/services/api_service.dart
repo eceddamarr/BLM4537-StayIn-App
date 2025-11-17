@@ -1,4 +1,4 @@
-import 'package:http/http.dart' as http;
+import 'package:http/http.dart' as http;  //Rest API'ye istek göndermek için
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -32,7 +32,7 @@ class ApiService {
     );
     
     if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
+      final data = jsonDecode(response.body);  //Gelen yanıtı json.decode ile Dart objesine çevirir
       // Token'ı kaydet
       if (data['token'] != null) {
         await _saveToken(data['token']);
@@ -97,9 +97,8 @@ class ApiService {
     return jsonDecode(response.body);
   }
 
-  // Create Listing (İlan oluştur)
+  // Create Listing (İlan oluştur) - Token ile
   static Future<Map<String, dynamic>?> createListing({
-    required String userEmail,
     required String title,
     required String description,
     required String placeType,
@@ -121,11 +120,18 @@ class ApiService {
     double? longitude,
     List<String>? photoUrls,
   }) async {
+    final token = await _getToken();
+    if (token == null) {
+      return {'success': false, 'message': 'Token bulunamadı. Lütfen giriş yapın.'};
+    }
+
     final response = await http.post(
-      Uri.parse('http://10.0.2.2:5211/api/Listing/create'),
-      headers: {'Content-Type': 'application/json'},
+      Uri.parse('http://10.0.2.2:5211/api/MyListings'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
       body: jsonEncode({
-        'userEmail': userEmail,
         'title': title,
         'description': description,
         'placeType': placeType,
@@ -136,15 +142,13 @@ class ApiService {
         'bathrooms': bathrooms,
         'amenities': amenities,
         'price': price,
-        'address': {
-          'country': country,
-          'city': city,
-          'district': district,
-          'street': street,
-          'building': building ?? '',
-          'postalCode': postalCode ?? '',
-          'region': region ?? '',
-        },
+        'addressCountry': country,
+        'addressCity': city,
+        'addressDistrict': district,
+        'addressStreet': street,
+        'addressBuilding': building ?? '',
+        'addressPostalCode': postalCode ?? '',
+        'addressRegion': region ?? '',
         'latitude': latitude,
         'longitude': longitude,
         'photoUrls': photoUrls ?? [],
@@ -380,10 +384,44 @@ class ApiService {
       body: jsonEncode(body),
     );
     
+    
     if (response.statusCode == 200) {
-      return {'success': true, 'message': 'İlan güncellendi'};
+      try {
+        final responseData = jsonDecode(response.body);
+        return {'success': true, 'message': responseData['message'] ?? 'İlan güncellendi'};
+      } catch (e) {
+        return {'success': true, 'message': 'İlan güncellendi'};
+      }
     } else {
-      return {'success': false, 'message': 'İlan güncellenemedi: ${response.body}'};
+      return {'success': false, 'message': 'İlan güncellenemedi (${response.statusCode}): ${response.body}'};
+    }
+  }
+
+  // İlan Detayını Getir (ID ile)
+  static Future<Map<String, dynamic>?> getListingById(int listingId) async {
+    final response = await http.get(
+      Uri.parse('http://10.0.2.2:5211/api/Listing/$listingId'),
+      headers: {'Content-Type': 'application/json'},
+    );
+    
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body) as Map<String, dynamic>;
+    } else {
+      return null;
+    }
+  }
+
+  // Kullanıcı Bilgilerini Getir (ID ile)
+  static Future<Map<String, dynamic>?> getUserById(int userId) async {
+    final response = await http.get(
+      Uri.parse('http://10.0.2.2:5211/api/User/$userId'),
+      headers: {'Content-Type': 'application/json'},
+    );
+    
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body) as Map<String, dynamic>;
+    } else {
+      return null;
     }
   }
 }

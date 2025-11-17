@@ -40,7 +40,7 @@ class BottomNavBar extends StatelessWidget {
         BottomNavigationBarItem(icon: Icon(Icons.home), label: "Keşfedin"),
         BottomNavigationBarItem(icon: Icon(Icons.favorite), label: "Favoriler"),
         BottomNavigationBarItem(icon: Icon(Icons.home_work), label: "İlanlarım"),
-        BottomNavigationBarItem(icon: Icon(Icons.travel_explore), label: "Seyahatler"),
+        BottomNavigationBarItem(icon: Icon(Icons.travel_explore), label: "Rezervasyonlarım"),
         BottomNavigationBarItem(icon: Icon(Icons.person), label: "Profil"),
       ],
     );

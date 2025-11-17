@@ -1,18 +1,21 @@
 import 'package:flutter/material.dart';
 import '../services/api_service.dart';
 import 'dart:convert';
+import 'ListingDetailScreen.dart';
 
 class HomeScreen extends StatefulWidget {
   final bool isLoggedIn;
   final VoidCallback? goToProfile;
   final VoidCallback? goToLogin;
   final Widget? bottomNavBar;
+  final String? userEmail;
   const HomeScreen({
     Key? key, 
     this.isLoggedIn = false, 
     this.goToProfile, 
     this.goToLogin, 
     this.bottomNavBar,
+    this.userEmail,
   }) : super(key: key);
 
   @override
@@ -23,15 +26,40 @@ class _HomeScreenState extends State<HomeScreen> {
   late bool isLoggedIn;
   List<Map<String, dynamic>> _properties = [];
   bool _isLoading = true;
-  Set<int> _favoriteIds = {};
+  Set<int> _favoriteIds = {};   // Favori ilan ID'leri
+  Set<int> _myListingIds = {}; // Kullanıcının kendi ilan ID'leri
   
+  // Widget ilk oluşturulduğunda çalışır, başlangıç verilerini yükler
   @override
   void initState() {
     super.initState();
     isLoggedIn = widget.isLoggedIn;
-    _loadListings();
+    _loadData();
   }
 
+  // Kullanıcıya ait ilanları ve tüm ilanları yükler
+  Future<void> _loadData() async {
+    await _loadMyListingIds();
+    await _loadListings();
+  }
+
+  // Kullanıcının kendi ilan ID'lerini backend'den alır
+  Future<void> _loadMyListingIds() async {
+    if (!widget.isLoggedIn) return;
+    
+    try {
+      final myListings = await ApiService.getMyListings();
+      if (myListings != null && mounted) {
+        setState(() {
+          _myListingIds = myListings.map((listing) => listing['id'] as int).toSet();
+        });
+      }
+    } catch (e) {
+      // Sessizce devam et
+    }
+  }
+
+  // Tüm ilanlar için favori durumunu backend'den kontrol eder
   Future<void> _loadFavoriteStates() async {
     if (!mounted || !widget.isLoggedIn) return;
     
@@ -53,6 +81,7 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  // Favori ekleme/çıkarma işlemini yapar
   Future<void> _toggleFavorite(int index) async {
     // Giriş kontrolü
     if (!widget.isLoggedIn) {
@@ -99,6 +128,7 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  // Favori için giriş gerektiren uyarı dialogunu gösterir
   void _showLoginRequiredDialog() {
     showDialog(
       context: context,
@@ -125,6 +155,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  // Tüm ilanları backend'den alır ve ekrana hazırlar
   Future<void> _loadListings() async {
     setState(() => _isLoading = true);
     
@@ -132,21 +163,36 @@ class _HomeScreenState extends State<HomeScreen> {
       final listings = await ApiService.getAllListings();
       if (listings != null && mounted) {
         setState(() {
-          _properties = listings.map((listing) {
-            return {
-              'id': listing['id'],
-              'image': Icons.home,
-              'title': listing['title'] ?? 'İlan',
-              'location': '${listing['address']?['city'] ?? ''}, ${listing['address']?['district'] ?? ''}',
-              'rating': 4.5,
-              'reviews': 0,
-              'price': '₺${listing['price'] ?? '0'}',
-              'period': 'gece',
-              'description': listing['description'] ?? '',
-              'amenities': listing['amenities'] ?? [],
-              'photoUrls': listing['photoUrls'] ?? [],
-            };
-          }).toList();
+          _properties = listings
+            .where((listing) {
+              // Giriş yapmış kullanıcının kendi ilanlarını filtrele
+              if (widget.isLoggedIn && _myListingIds.isNotEmpty) {
+                final listingId = listing['id'] as int?;
+                return listingId != null && !_myListingIds.contains(listingId);
+              }
+              return true;
+            })
+            .map((listing) {
+              // Backend'den gelen address yapısını parse et
+              final address = listing['address'] as Map<String, dynamic>?;
+              final city = address?['addressCity'] ?? address?['city'] ?? '';
+              final district = address?['addressDistrict'] ?? address?['district'] ?? '';
+              
+              return {
+                'id': listing['id'],
+                'image': Icons.home,
+                'title': listing['title'] ?? 'İlan',
+                'location': '$city, $district',
+                'rating': 4.5,
+                'reviews': 0,
+                'price': '₺${listing['price'] ?? '0'}',
+                'period': 'gece',
+                'description': listing['description'] ?? '',
+                'amenities': listing['amenities'] ?? [],
+                'photoUrls': listing['photoUrls'] ?? [],
+                'userId': listing['userId'], // userId'yi de sakla
+              };
+            }).toList();
           _isLoading = false;
         });
         
@@ -168,7 +214,8 @@ class _HomeScreenState extends State<HomeScreen> {
   String demoUsername = 'Demo Kullanıcı';
   String demoEmail = 'demo@email.com';
 
-  // Helper method to build image widget for different URL types
+
+  // Fotoğraf URL'sine göre uygun image widget'ı döndürür
   Widget _buildImageWidget(String imageUrl, {double? height, double? width, IconData? placeholderIcon}) {
     if (imageUrl.startsWith('data:image')) {
       // Base64 data URI - extract and decode
@@ -249,6 +296,7 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  // Ana ekranın arayüzünü oluşturur
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -345,7 +393,22 @@ class _HomeScreenState extends State<HomeScreen> {
                             final listingId = property['id'] as int;
                             final isFavorite = _favoriteIds.contains(listingId);
                             
-                            return Container(
+                            return GestureDetector(
+                              onTap: () {
+                                // İlan detay sayfasına git
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => ListingDetailScreen(
+                                      listingId: listingId,
+                                      isLoggedIn: widget.isLoggedIn,
+                                      goToLogin: widget.goToLogin,
+                                      userEmail: widget.userEmail,
+                                    ),
+                                  ),
+                                );
+                              },
+                              child: Container(
                               margin: const EdgeInsets.only(bottom: 20),
                               decoration: BoxDecoration(
                                 color: Colors.white,
@@ -485,6 +548,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   ),
                                 ],
                               ),
+                            ),
                             );
                           },
                         ),

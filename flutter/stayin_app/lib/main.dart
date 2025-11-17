@@ -7,7 +7,6 @@ import 'views/ProfileScreen.dart';
 import 'views/FavoritesScreen.dart';
 import 'views/MyListingsScreen.dart';
 import 'widgets/BottomNavBar.dart';
-import 'services/favorites_service.dart';
 
 void main() {
   runApp(const MyApp());
@@ -26,7 +25,6 @@ class _MyAppState extends State<MyApp> {
   String email = '';
   String currentScreen = 'home'; // 'home', 'favorites', 'trips', 'messages', 'profile', 'login', 'register'
   int selectedTab = 0;
-  final _favoritesService = FavoritesService();
   bool _isLoading = true;
 
   @override
@@ -47,7 +45,6 @@ class _MyAppState extends State<MyApp> {
         isLoggedIn = true;
         email = savedEmail;
         fullName = savedFullName ?? '';
-        _favoritesService.setUser(savedEmail);
         _isLoading = false;
       });
     } else {
@@ -81,7 +78,6 @@ class _MyAppState extends State<MyApp> {
       if (user != null) fullName = user;
       if (mail != null) {
         email = mail;
-        _favoritesService.setUser(mail);
       }
     });
     await _saveUserData();
@@ -94,7 +90,6 @@ class _MyAppState extends State<MyApp> {
       email = '';
       currentScreen = 'login';
       selectedTab = 0;
-      _favoritesService.setUser(null);
     });
     await _clearUserData();
   }
@@ -224,6 +219,8 @@ class _MyAppState extends State<MyApp> {
           if (currentScreen == 'favorites') {
             return FavoritesScreen(
               bottomNavBar: bottomNavBar,
+              userEmail: email,
+              goToLogin: goToLogin,
             );
           }
           if (currentScreen == 'mylistings') {
@@ -246,12 +243,13 @@ class _MyAppState extends State<MyApp> {
             goToProfile: goToProfile,
             goToLogin: goToLogin,
             bottomNavBar: bottomNavBar,
+            userEmail: email,
           );
         },
       ),
       routes: {
         '/home': (_) => HomeScreen(isLoggedIn: true),
-  '/login': (_) => LoginScreen(onLogin: (username, email) => handleLogin(user: username, mail: email)),
+        '/login': (_) => LoginScreen(onLogin: (username, email) => handleLogin(user: username, mail: email)),
         '/register': (_) => RegisterScreen(onRegister: (username, email) => handleLogin(user: username, mail: email)),
       },
     );
