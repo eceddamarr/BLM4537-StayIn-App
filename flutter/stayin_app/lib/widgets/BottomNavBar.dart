@@ -25,8 +25,8 @@ class BottomNavBar extends StatelessWidget {
       showUnselectedLabels: true,
       type: BottomNavigationBarType.fixed,
       onTap: (index) {
-        // Giriş gerektiren sekmeler: Favoriler (1), İlanlarım (2), Profil (4)
-        if ((index == 1 || index == 2 || index == 4) && !isLoggedIn) {
+        // Giriş gerektiren sekmeler: Favoriler (1), İlanlarım (2), Rezervasyonlar (3), Profil (4)
+        if ((index == 1 || index == 2 || index == 3 || index == 4) && !isLoggedIn) {
           if (onLoginRequested != null) {
             onLoginRequested!();
           }

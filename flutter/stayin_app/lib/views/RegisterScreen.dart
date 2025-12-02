@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../services/api_service.dart';
 
 class RegisterScreen extends StatefulWidget {
-  final void Function(String username, String email)? onRegister;
+  final void Function(String username, String email, String phone)? onRegister;
   const RegisterScreen({super.key, this.onRegister});
 
   @override
@@ -13,6 +13,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
+  final _phoneController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmController = TextEditingController();
   bool _loading = false;
@@ -23,6 +24,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   void dispose() {
     _nameController.dispose();
     _emailController.dispose();
+    _phoneController.dispose();
     _passwordController.dispose();
     _confirmController.dispose();
     super.dispose();
@@ -35,6 +37,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     final result = await ApiService.register(
       _nameController.text,
       _emailController.text,
+      _phoneController.text,
       _passwordController.text,
       _confirmController.text,
     );
@@ -43,9 +46,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
     if (result != null && result['token'] != null) {
       // Kayıt başarılı, ana widget'a username ve email ile bildir
+      final userObj = result['user'] ?? {};
+      final phoneNumber = userObj['phoneNumber'] ?? '';
       if (widget.onRegister != null) {
         if (mounted) Navigator.of(context).pop();
-        widget.onRegister!(_nameController.text, _emailController.text);
+        widget.onRegister!(_nameController.text, _emailController.text, phoneNumber);
       }
     } else {
       final message = result?['message'] ?? 'Kayıt başarısız';
@@ -169,6 +174,37 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
                   ),
                   validator: (v) => (v == null || v.isEmpty) ? 'E-posta gerekli' : null,
+                ),
+                const SizedBox(height: 20),
+                Text('Telefon', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.grey[800])),
+                const SizedBox(height: 8),
+                TextFormField(
+                  controller: _phoneController,
+                  keyboardType: TextInputType.phone,
+                  decoration: InputDecoration(
+                    hintText: '05XX XXX XX XX',
+                    prefixIcon: Icon(Icons.phone_outlined, color: Colors.grey[600]),
+                    filled: true,
+                    fillColor: Colors.grey[50],
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(color: Colors.grey[300]!),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(color: Colors.grey[300]!),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(color: Colors.redAccent, width: 2),
+                    ),
+                    errorBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(color: Colors.red),
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                  ),
+                  validator: (v) => (v == null || v.isEmpty) ? 'Telefon numarası gerekli' : null,
                 ),
                 const SizedBox(height: 20),
                 Text('Şifre', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.grey[800])),

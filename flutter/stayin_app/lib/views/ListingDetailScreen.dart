@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../services/api_service.dart';
 import 'dart:convert';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
 
 class ListingDetailScreen extends StatefulWidget {
   final int listingId;
@@ -30,11 +32,20 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
   DateTime? checkOutDate;
   int guests = 1;
   bool isFavorite = false;
+  bool hasExistingReservation = false;
+  bool checkingReservation = false;
+  
+  // Review data
+  List<dynamic> reviews = [];
+  double averageRating = 0.0;
+  int totalReviews = 0;
+  bool loadingReviews = false;
 
   @override
   void initState() {
     super.initState();
     _loadListing();
+    _loadReviews();
   }
 
   Future<void> _loadListing() async {
@@ -55,6 +66,7 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
         // Favori durumunu kontrol et
         if (widget.isLoggedIn) {
           await _checkFavoriteStatus();
+          await _checkExistingReservation();
         }
       }
     } catch (e) {
@@ -88,6 +100,26 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
     }
   }
 
+  Future<void> _loadReviews() async {
+    setState(() => loadingReviews = true);
+    try {
+      final result = await ApiService.getListingReviews(widget.listingId);
+      if (result['success'] && mounted) {
+        final data = result['data'];
+        setState(() {
+          reviews = data['reviews'] ?? [];
+          totalReviews = data['totalReviews'] ?? 0;
+          averageRating = (data['averageRating'] ?? 0).toDouble();
+          loadingReviews = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => loadingReviews = false);
+      }
+    }
+  }
+
   Future<void> _checkFavoriteStatus() async {
     if (!widget.isLoggedIn) return;
 
@@ -100,6 +132,48 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
       }
     } catch (e) {
       // Hata durumunda sessizce devam et
+    }
+  }
+
+  Future<void> _checkExistingReservation() async {
+    if (!widget.isLoggedIn) return;
+
+    setState(() => checkingReservation = true);
+    try {
+      // Kullanıcının tüm rezervasyonlarını al
+      final reservations = await ApiService.getMyReservations();
+      
+      // Bu ilan için aktif ve gelecekteki rezervasyon var mı kontrol et
+      final hasActiveReservation = reservations.any((reservation) {
+        final listingId = reservation['listingId'];
+        final status = (reservation['status'] ?? '').toString().toLowerCase();
+        final checkOutDateStr = reservation['checkOutDate'];
+        
+        // Bu ilana ait değilse atla
+        if (listingId != widget.listingId) return false;
+        
+        // İptal edilmiş veya reddedilmişse atla
+        if (status == 'cancelled' || status == 'rejected') return false;
+        
+        // CheckOut tarihini parse et ve gelecekte mi kontrol et
+        try {
+          final checkOutDate = DateTime.parse(checkOutDateStr);
+          return checkOutDate.isAfter(DateTime.now());
+        } catch (e) {
+          return false;
+        }
+      });
+      
+      if (mounted) {
+        setState(() {
+          hasExistingReservation = hasActiveReservation;
+          checkingReservation = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => checkingReservation = false);
+      }
     }
   }
 
@@ -184,7 +258,7 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
     return host?['email'] == widget.userEmail;
   }
 
-  void _makeReservation() {
+  void _makeReservation() async {
     if (isOwnListing) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Kendi ilanınıza rezervasyon yapamazsınız')),
@@ -206,7 +280,8 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
       return;
     }
 
-    showDialog(
+    // Onay dialogu
+    final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Rezervasyon Talebi'),
@@ -214,16 +289,69 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
           'Giriş: ${checkInDate!.day}/${checkInDate!.month}/${checkInDate!.year}\n'
           'Çıkış: ${checkOutDate!.day}/${checkOutDate!.month}/${checkOutDate!.year}\n'
           'Misafir: $guests\n'
-          'Toplam: ₺${totalPrice.toStringAsFixed(0)}',
+          'Toplam: ₺${totalPrice.toStringAsFixed(0)}\n\n'
+          'Rezervasyon talebiniz ev sahibine gönderilecek.',
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Tamam'),
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('İptal'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent),
+            child: const Text('Gönder', style: TextStyle(color: Colors.white)),
           ),
         ],
       ),
     );
+
+    if (confirmed != true) return;
+
+    // API'ye rezervasyon gönder
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => const Center(child: CircularProgressIndicator()),
+    );
+
+    final result = await ApiService.createReservation(
+      listingId: widget.listingId,
+      checkInDate: checkInDate!,
+      checkOutDate: checkOutDate!,
+      guests: guests,
+    );
+
+    if (mounted) {
+      Navigator.pop(context); // Loading dialog kapat
+
+      if (result['success']) {
+        setState(() {
+          hasExistingReservation = true;
+          checkInDate = null;
+          checkOutDate = null;
+          guests = 1;
+        });
+
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Başarılı'),
+            content: Text(result['message'] ?? 'Rezervasyon talebiniz gönderildi.'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Tamam'),
+              ),
+            ],
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(result['message'] ?? 'Rezervasyon oluşturulamadı')),
+        );
+      }
+    }
   }
 
   Widget _buildImageWidget(String imageUrl) {
@@ -501,7 +629,7 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
                         const Divider(height: 32),
                       ],
 
-                      // Location Info
+                      // Location Info with Map
                       const Text(
                         'Nerede olacaksınız',
                         style: TextStyle(
@@ -510,30 +638,233 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
                         ),
                       ),
                       const SizedBox(height: 12),
+                      
+                      // Map
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(12),
+                        child: SizedBox(
+                          height: 300,
+                          child: (listing!['latitude'] != null && listing!['longitude'] != null)
+                              ? FlutterMap(
+                                  options: MapOptions(
+                                    initialCenter: LatLng(
+                                      listing!['latitude'],
+                                      listing!['longitude'],
+                                    ),
+                                    initialZoom: 14.0,
+                                    interactionOptions: const InteractionOptions(
+                                      flags: InteractiveFlag.all & ~InteractiveFlag.rotate,
+                                    ),
+                                  ),
+                                  children: [
+                                    TileLayer(
+                                      urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                                      userAgentPackageName: 'com.example.stayin_app',
+                                    ),
+                                    MarkerLayer(
+                                      markers: [
+                                        Marker(
+                                          point: LatLng(
+                                            listing!['latitude'],
+                                            listing!['longitude'],
+                                          ),
+                                          width: 80,
+                                          height: 80,
+                                          child: const Icon(
+                                            Icons.location_on,
+                                            color: Colors.redAccent,
+                                            size: 40,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                )
+                              : Container(
+                                  color: Colors.grey[200],
+                                  child: Center(
+                                    child: Column(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        Icon(Icons.location_off, size: 48, color: Colors.grey[400]),
+                                        const SizedBox(height: 8),
+                                        Text(
+                                          'Konum bilgisi mevcut değil',
+                                          style: TextStyle(color: Colors.grey[600]),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                        ),
+                      ),
+                      
+                      const SizedBox(height: 12),
+                      
+                      // Location text info
                       Container(
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
-                          color: Colors.grey[100],
+                          color: Colors.grey[50],
                           borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: Colors.grey[200]!),
+                        ),
+                        child: Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                color: Colors.redAccent.withOpacity(0.1),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: const Icon(
+                                Icons.location_city,
+                                color: Colors.redAccent,
+                                size: 24,
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    '$district, $city',
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    country,
+                                    style: TextStyle(color: Colors.grey[600]),
+                                  ),
+                                  if (region.isNotEmpty) ...[
+                                    const SizedBox(height: 2),
+                                    Text(
+                                      'Bölge: $region',
+                                      style: TextStyle(color: Colors.grey[500], fontSize: 12),
+                                    ),
+                                  ],
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      const SizedBox(height: 32),
+
+                      // Reviews Section
+                      Container(
+                        padding: const EdgeInsets.all(24),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(16),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.05),
+                              blurRadius: 10,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
                         ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              '$district, $city',
-                              style: const TextStyle(fontWeight: FontWeight.bold),
+                            Row(
+                              children: [
+                                const Icon(Icons.star, color: Colors.amber, size: 28),
+                                const SizedBox(width: 8),
+                                Text(
+                                  totalReviews > 0
+                                      ? '${averageRating.toStringAsFixed(1)} · $totalReviews ${totalReviews == 1 ? 'Yorum' : 'Yorum'}'
+                                      : 'Henüz yorum yok',
+                                  style: const TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
                             ),
-                            const SizedBox(height: 4),
-                            Text(
-                              country,
-                              style: TextStyle(color: Colors.grey[600]),
-                            ),
-                            if (region.isNotEmpty) ...[
-                              const SizedBox(height: 4),
+                            
+                            if (loadingReviews) ...[
+                              const SizedBox(height: 20),
+                              const Center(child: CircularProgressIndicator()),
+                            ] else if (reviews.isEmpty) ...[
+                              const SizedBox(height: 16),
                               Text(
-                                'Bölge: $region',
-                                style: TextStyle(color: Colors.grey[500], fontSize: 12),
+                                'Bu ilan için henüz değerlendirme yapılmamış.',
+                                style: TextStyle(color: Colors.grey[600]),
                               ),
+                            ] else ...[
+                              const SizedBox(height: 20),
+                              ...reviews.take(5).map((review) {
+                                final createdAt = DateTime.parse(review['createdAt']);
+                                final formattedDate = '${createdAt.day}/${createdAt.month}/${createdAt.year}';
+                                
+                                return Padding(
+                                  padding: const EdgeInsets.only(bottom: 20),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          CircleAvatar(
+                                            backgroundColor: Colors.redAccent,
+                                            child: Text(
+                                              review['guestName'][0].toUpperCase(),
+                                              style: const TextStyle(color: Colors.white),
+                                            ),
+                                          ),
+                                          const SizedBox(width: 12),
+                                          Expanded(
+                                            child: Column(
+                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              children: [
+                                                Text(
+                                                  review['guestName'],
+                                                  style: const TextStyle(
+                                                    fontWeight: FontWeight.bold,
+                                                    fontSize: 15,
+                                                  ),
+                                                ),
+                                                Text(
+                                                  formattedDate,
+                                                  style: TextStyle(
+                                                    color: Colors.grey[600],
+                                                    fontSize: 13,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                          Row(
+                                            children: List.generate(
+                                              5,
+                                              (i) => Icon(
+                                                i < review['rating'] ? Icons.star : Icons.star_border,
+                                                color: Colors.amber,
+                                                size: 16,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      const SizedBox(height: 12),
+                                      Text(
+                                        review['comment'],
+                                        style: TextStyle(
+                                          color: Colors.grey[800],
+                                          fontSize: 14,
+                                          height: 1.5,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              }).toList(),
                             ],
                           ],
                         ),
@@ -613,24 +944,35 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
               ),
               const Spacer(),
               ElevatedButton(
-                onPressed: () {
-                  if (!widget.isLoggedIn) {
-                    _showLoginRequiredDialog(message: 'Rezervasyon yapmak için önce giriş yapmanız gerekmektedir.');
-                  } else {
-                    _showReservationDialog();
-                  }
-                },
+                onPressed: (hasExistingReservation || checkingReservation) 
+                  ? null 
+                  : () {
+                      if (!widget.isLoggedIn) {
+                        _showLoginRequiredDialog(message: 'Rezervasyon yapmak için önce giriş yapmanız gerekmektedir.');
+                      } else {
+                        _showReservationDialog();
+                      }
+                    },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.redAccent,
+                  backgroundColor: hasExistingReservation ? Colors.grey : Colors.redAccent,
                   padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
                   ),
                 ),
-                child: const Text(
-                  'Rezervasyon Yap',
-                  style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
-                ),
+                child: checkingReservation
+                  ? const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: Colors.white,
+                      ),
+                    )
+                  : Text(
+                      hasExistingReservation ? 'Aktif Rezervasyonunuz Var' : 'Rezervasyon Yap',
+                      style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+                    ),
               ),
             ],
           ),

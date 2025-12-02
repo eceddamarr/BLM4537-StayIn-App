@@ -6,6 +6,7 @@ import 'views/RegisterScreen.dart';
 import 'views/ProfileScreen.dart';
 import 'views/FavoritesScreen.dart';
 import 'views/MyListingsScreen.dart';
+import 'views/MyReservationsScreen.dart';
 import 'widgets/BottomNavBar.dart';
 
 void main() {
@@ -23,6 +24,7 @@ class _MyAppState extends State<MyApp> {
   bool isLoggedIn = false;
   String fullName = '';
   String email = '';
+  String phoneNumber = '';
   String currentScreen = 'home'; // 'home', 'favorites', 'trips', 'messages', 'profile', 'login', 'register'
   int selectedTab = 0;
   bool _isLoading = true;
@@ -38,6 +40,7 @@ class _MyAppState extends State<MyApp> {
     final prefs = await SharedPreferences.getInstance();
     final savedEmail = prefs.getString('user_email');
     final savedFullName = prefs.getString('user_fullname');
+    final savedPhoneNumber = prefs.getString('user_phone');
     final savedIsLoggedIn = prefs.getBool('is_logged_in') ?? false;
     
     if (mounted && savedIsLoggedIn && savedEmail != null) {
@@ -45,6 +48,7 @@ class _MyAppState extends State<MyApp> {
         isLoggedIn = true;
         email = savedEmail;
         fullName = savedFullName ?? '';
+        phoneNumber = savedPhoneNumber ?? '';
         _isLoading = false;
       });
     } else {
@@ -60,6 +64,7 @@ class _MyAppState extends State<MyApp> {
     await prefs.setBool('is_logged_in', isLoggedIn);
     await prefs.setString('user_email', email);
     await prefs.setString('user_fullname', fullName);
+    await prefs.setString('user_phone', phoneNumber);
   }
 
   // Kullanıcı bilgilerini temizle
@@ -68,9 +73,10 @@ class _MyAppState extends State<MyApp> {
     await prefs.remove('is_logged_in');
     await prefs.remove('user_email');
     await prefs.remove('user_fullname');
+    await prefs.remove('user_phone');
   }
 
-  void handleLogin({String? user, String? mail}) async {
+  void handleLogin({String? user, String? mail, String? phone}) async {
     setState(() {
       isLoggedIn = true;
       currentScreen = 'home';
@@ -79,6 +85,7 @@ class _MyAppState extends State<MyApp> {
       if (mail != null) {
         email = mail;
       }
+      if (phone != null) phoneNumber = phone;
     });
     await _saveUserData();
   }
@@ -88,6 +95,7 @@ class _MyAppState extends State<MyApp> {
       isLoggedIn = false;
       fullName = '';
       email = '';
+      phoneNumber = '';
       currentScreen = 'login';
       selectedTab = 0;
     });
@@ -191,7 +199,7 @@ class _MyAppState extends State<MyApp> {
         builder: (context) {
           if (currentScreen == 'login') {
             return LoginScreen(
-              onLogin: (username, email) => handleLogin(user: username, mail: email),
+              onLogin: (username, email, phone) => handleLogin(user: username, mail: email, phone: phone),
               onBack: () {
                 setState(() {
                   currentScreen = 'home';
@@ -204,6 +212,7 @@ class _MyAppState extends State<MyApp> {
             return ProfileScreen(
               fullName: fullName.isNotEmpty ? fullName : 'Demo Kullanıcı',
               email: email.isNotEmpty ? email : 'demo@email.com',
+              phoneNumber: phoneNumber.isNotEmpty ? phoneNumber : '',
               onLogout: handleLogout,
               goToProfile: goToProfile,
               isLoggedIn: true,
@@ -232,8 +241,7 @@ class _MyAppState extends State<MyApp> {
           }
           if (currentScreen == 'trips') {
             return Scaffold(
-              appBar: AppBar(title: const Text('Seyahatler')),
-              body: const Center(child: Text('Seyahatler Ekranı')), 
+              body: const MyReservationsScreen(),
               bottomNavigationBar: bottomNavBar,
             );
           }
@@ -249,8 +257,8 @@ class _MyAppState extends State<MyApp> {
       ),
       routes: {
         '/home': (_) => HomeScreen(isLoggedIn: true),
-        '/login': (_) => LoginScreen(onLogin: (username, email) => handleLogin(user: username, mail: email)),
-        '/register': (_) => RegisterScreen(onRegister: (username, email) => handleLogin(user: username, mail: email)),
+        '/login': (_) => LoginScreen(onLogin: (username, email, phone) => handleLogin(user: username, mail: email, phone: phone)),
+        '/register': (_) => RegisterScreen(onRegister: (username, email, phone) => handleLogin(user: username, mail: email, phone: phone)),
       },
     );
   }

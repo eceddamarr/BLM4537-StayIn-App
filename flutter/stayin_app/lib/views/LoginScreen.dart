@@ -5,7 +5,7 @@ import 'ForgotPasswordScreen.dart';
 
 
 class LoginScreen extends StatefulWidget {
-  final void Function(String username, String email)? onLogin;
+  final void Function(String username, String email, String phone)? onLogin;
   final VoidCallback? onBack;
   const LoginScreen({super.key, this.onLogin, this.onBack});
 
@@ -33,7 +33,8 @@ class _LoginScreenState extends State<LoginScreen> {
       final userObj = result['user'] ?? {};
       final fullName = userObj['fullName'] ?? '';
       final email = userObj['email'] ?? _emailController.text;
-      widget.onLogin?.call(fullName, email);
+      final phoneNumber = userObj['phoneNumber'] ?? '';
+      widget.onLogin?.call(fullName, email, phoneNumber);
     } else {
       final message = result?['message'] ?? 'Giriş başarısız';
       if (!mounted) return;
@@ -278,9 +279,9 @@ class _LoginScreenState extends State<LoginScreen> {
                             Navigator.of(context).push(
                               MaterialPageRoute(
                                 builder: (_) => RegisterScreen(
-                                  onRegister: (username, email) {
+                                  onRegister: (username, email, phone) {
                                     if (widget.onLogin != null) {
-                                      widget.onLogin!(username, email);
+                                      widget.onLogin!(username, email, phone);
                                     }
                                   },
                                 ),

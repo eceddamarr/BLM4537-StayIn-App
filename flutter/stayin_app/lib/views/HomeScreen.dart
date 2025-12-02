@@ -162,8 +162,9 @@ class _HomeScreenState extends State<HomeScreen> {
     try {
       final listings = await ApiService.getAllListings();
       if (listings != null && mounted) {
-        setState(() {
-          _properties = listings
+        // İlanları map'le ve review bilgilerini ekle
+        final propertiesList = await Future.wait(
+          listings
             .where((listing) {
               // Giriş yapmış kullanıcının kendi ilanlarını filtrele
               if (widget.isLoggedIn && _myListingIds.isNotEmpty) {
@@ -172,19 +173,33 @@ class _HomeScreenState extends State<HomeScreen> {
               }
               return true;
             })
-            .map((listing) {
+            .map((listing) async {
               // Backend'den gelen address yapısını parse et
               final address = listing['address'] as Map<String, dynamic>?;
               final city = address?['addressCity'] ?? address?['city'] ?? '';
               final district = address?['addressDistrict'] ?? address?['district'] ?? '';
+              
+              // Her ilan için review bilgilerini getir
+              double rating = 0.0;
+              int reviewCount = 0;
+              try {
+                final reviewResult = await ApiService.getListingReviews(listing['id']);
+                if (reviewResult['success']) {
+                  final data = reviewResult['data'];
+                  rating = (data['averageRating'] ?? 0.0).toDouble();
+                  reviewCount = data['totalReviews'] ?? 0;
+                }
+              } catch (e) {
+                // Hata durumunda varsayılan değerleri kullan
+              }
               
               return {
                 'id': listing['id'],
                 'image': Icons.home,
                 'title': listing['title'] ?? 'İlan',
                 'location': '$city, $district',
-                'rating': 4.5,
-                'reviews': 0,
+                'rating': rating,
+                'reviews': reviewCount,
                 'price': '₺${listing['price'] ?? '0'}',
                 'period': 'gece',
                 'description': listing['description'] ?? '',
@@ -192,7 +207,11 @@ class _HomeScreenState extends State<HomeScreen> {
                 'photoUrls': listing['photoUrls'] ?? [],
                 'userId': listing['userId'], // userId'yi de sakla
               };
-            }).toList();
+            }).toList(),
+        );
+        
+        setState(() {
+          _properties = propertiesList;
           _isLoading = false;
         });
         
@@ -493,20 +512,6 @@ class _HomeScreenState extends State<HomeScreen> {
                                     child: Column(
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
-                                        Row(
-                                          children: [
-                                            Icon(Icons.star, color: Colors.amber[700], size: 16),
-                                            const SizedBox(width: 4),
-                                            Text(
-                                              '${property['rating']}',
-                                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
-                                            ),
-                                            Text(
-                                              ' (${property['reviews']} değerlendirme)',
-                                              style: TextStyle(color: Colors.grey[600], fontSize: 12),
-                                            ),
-                                          ],
-                                        ),
                                         const SizedBox(height: 8),
                                         Text(
                                           property['title'],
@@ -527,6 +532,31 @@ class _HomeScreenState extends State<HomeScreen> {
                                           ],
                                         ),
                                         const SizedBox(height: 8),
+                                        // Rating
+                                        if (property['reviews'] > 0) ...[
+                                          Row(
+                                            children: [
+                                              const Icon(Icons.star, size: 16, color: Colors.amber),
+                                              const SizedBox(width: 4),
+                                              Text(
+                                                '${property['rating'].toStringAsFixed(1)}',
+                                                style: const TextStyle(
+                                                  fontSize: 14,
+                                                  fontWeight: FontWeight.w600,
+                                                ),
+                                              ),
+                                              const SizedBox(width: 4),
+                                              Text(
+                                                '(${property['reviews']} yorum)',
+                                                style: TextStyle(
+                                                  color: Colors.grey[600],
+                                                  fontSize: 13,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                          const SizedBox(height: 8),
+                                        ],
                                         Row(
                                           children: [
                                             Text(

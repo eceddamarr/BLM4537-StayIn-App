@@ -315,20 +315,6 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Row(
-                              children: [
-                                Icon(Icons.star, color: Colors.amber[700], size: 16),
-                                const SizedBox(width: 4),
-                                Text(
-                                  '${property['rating'] ?? 4.5}',
-                                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
-                                ),
-                                Text(
-                                  ' (${property['reviews'] ?? 0} değerlendirme)',
-                                  style: TextStyle(color: Colors.grey[600], fontSize: 12),
-                                ),
-                              ],
-                            ),
                             const SizedBox(height: 8),
                             Text(
                               property['title'] ?? 'İlan',
