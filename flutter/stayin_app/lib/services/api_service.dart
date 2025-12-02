@@ -946,4 +946,77 @@ class ApiService {
       return {'success': false, 'message': 'Bir hata oluştu: $e'};
     }
   }
+
+  // ============== PAYMENT ENDPOINTS ==============
+
+  // Rezervasyon için ödeme yap
+  static Future<Map<String, dynamic>> processPayment({
+    required int reservationId,
+    required String cardNumber,
+    required String cardHolder,
+    required String expiryMonth,
+    required String expiryYear,
+    required String cvv,
+    required double amount,
+  }) async {
+    final token = await _getToken();
+    if (token == null) {
+      return {'success': false, 'message': 'Token bulunamadı'};
+    }
+
+    try {
+      final response = await http.post(
+        Uri.parse('$baseUrl/Payments/reservation/$reservationId'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+        body: jsonEncode({
+          'cardNumber': cardNumber,
+          'cardHolder': cardHolder,
+          'expiryMonth': expiryMonth,
+          'expiryYear': expiryYear,
+          'cvv': cvv,
+          'amount': amount,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        return {'success': true, 'message': data['message'], 'data': data['data']};
+      } else {
+        final error = jsonDecode(response.body);
+        return {'success': false, 'message': error['message'] ?? 'Ödeme yapılamadı'};
+      }
+    } catch (e) {
+      return {'success': false, 'message': 'Bir hata oluştu: $e'};
+    }
+  }
+
+  // Rezervasyon ödeme detayı
+  static Future<Map<String, dynamic>> getPaymentByReservation(int reservationId) async {
+    final token = await _getToken();
+    if (token == null) {
+      return {'success': false, 'message': 'Token bulunamadı'};
+    }
+
+    try {
+      final response = await http.get(
+        Uri.parse('$baseUrl/Payments/reservation/$reservationId'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        return {'success': true, 'data': data['data']};
+      } else {
+        return {'success': false, 'message': 'Ödeme bilgisi bulunamadı'};
+      }
+    } catch (e) {
+      return {'success': false, 'message': 'Bir hata oluştu: $e'};
+    }
+  }
 }

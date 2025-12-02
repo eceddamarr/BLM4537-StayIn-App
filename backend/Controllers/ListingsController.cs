@@ -26,6 +26,7 @@ namespace StayIn.Api.Controllers
             try
             {
                 var listings = await _context.Listings
+                    .Where(l => !l.IsArchived)  // Arşivlenmiş ilanları gösterme
                     .OrderByDescending(l => l.CreatedAt)
                     .Select(l => new
                     {
@@ -54,6 +55,7 @@ namespace StayIn.Api.Controllers
                         l.Latitude,
                         l.Longitude,
                         l.UserId,  
+                        l.IsArchived,
                         l.CreatedAt
                     })
                     .ToListAsync();
@@ -117,6 +119,8 @@ namespace StayIn.Api.Controllers
                 return BadRequest(new { message = $"İlan getirilemedi: {ex.Message}" });
             }
         }
+
+        
     
     
     }

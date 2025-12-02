@@ -37,8 +37,8 @@ public class AuthController : ControllerBase
     {
         public string FullName { get; set; } = default!;
         public string Email { get; set; } = default!;
+        public string PhoneNumber { get; set; } = default!; 
         public string Password { get; set; } = default!;
-
         public string PasswordConfirm { get; set; } = default!;
     }
 
@@ -59,6 +59,20 @@ public class AuthController : ControllerBase
         public string Code { get; set; } = default!;
         public string NewPassword { get; set; } = default!;
         public string NewPasswordConfirm { get; set; } = default!;
+    }
+
+    public class UpdateProfileRequest
+    {
+        public string FullName { get; set; } = default!;
+        public string Email { get; set; } = default!;
+        public string PhoneNumber { get; set; } = default!;
+    }
+
+    public class ChangePasswordRequest
+    {
+        public string CurrentPassword { get; set; } = default!;
+        public string NewPassword { get; set; } = default!;
+        public string ConfirmNewPassword { get; set; } = default!;
     }
 
     // POST /api/Auth/login
@@ -86,7 +100,7 @@ public class AuthController : ControllerBase
         {
             success = true,
             token,
-            user = new { user.Id, user.FullName, user.Email, user.Role }
+            user = new { user.Id, user.FullName, user.Email, user.PhoneNumber, user.Role }
         });
     }
 
@@ -95,8 +109,11 @@ public class AuthController : ControllerBase
     public async Task<IActionResult> Register([FromBody] RegisterRequest request)
     {
         // Tüm alanların dolu olduğunu kontrol et
-        if (string.IsNullOrWhiteSpace(request.Email) || string.IsNullOrWhiteSpace(request.Password) 
-        || string.IsNullOrWhiteSpace(request.FullName) || string.IsNullOrWhiteSpace(request.PasswordConfirm))
+        if (string.IsNullOrWhiteSpace(request.Email) || 
+            string.IsNullOrWhiteSpace(request.Password) || 
+            string.IsNullOrWhiteSpace(request.FullName) || 
+            string.IsNullOrWhiteSpace(request.PhoneNumber) ||
+            string.IsNullOrWhiteSpace(request.PasswordConfirm))
             return BadRequest(new { success = false, message = "Lütfen tüm alanları doldurun." });
 
         // Şifreler eşleşmiyorsa
@@ -108,29 +125,33 @@ public class AuthController : ControllerBase
         if (existingUser)
             return BadRequest(new { success = false, message = "Bu email ile zaten bir kullanıcı mevcut." });
 
+        // Aynı telefon numarası var mı kontrol et 
+        var existingPhone = await _db.Users.AnyAsync(u => u.PhoneNumber == request.PhoneNumber);
+        if (existingPhone)
+            return BadRequest(new { success = false, message = "Bu telefon numarası zaten kayıtlı." });
+
         // Yeni kullanıcı oluştur
         var user = new Models.User
         {
             FullName = request.FullName,
             Email = request.Email,
+            PhoneNumber = request.PhoneNumber, 
             PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password),
-            Role = "User" // varsayılan rol
+            Role = "User"
         };
 
         _db.Users.Add(user);
         await _db.SaveChangesAsync();
 
-        //  JWT üret ve döndür
         var token = GenerateJwt(user.Id, user.Email, user.Role);
 
         return Ok(new
         {
             success = true,
             token,
-            user = new { user.Id, user.FullName, user.Email, user.Role }
+            user = new { user.Id, user.FullName, user.Email, user.PhoneNumber, user.Role } 
         });
     }
-
 
     // POST /api/Auth/forgot-password - 1. Adım: Email'e kod gönder
     [HttpPost("forgot-password")]
@@ -211,6 +232,103 @@ public class AuthController : ControllerBase
         await _db.SaveChangesAsync();
 
         return Ok(new { success = true, message = "Şifreniz başarıyla değiştirildi. Artık giriş yapabilirsiniz." });
+    }
+
+    // PUT /api/Auth/update-profile - Profil bilgilerini güncelle
+    [HttpPut("update-profile")]
+    public async Task<IActionResult> UpdateProfile([FromBody] UpdateProfileRequest request)
+    {
+        // Token'dan kullanıcı ID'sini al
+        var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier) 
+                          ?? User.FindFirst(System.IdentityModel.Tokens.Jwt.JwtRegisteredClaimNames.Sub);
+        
+        if (userIdClaim == null)
+            return Unauthorized(new { success = false, message = "Kullanıcı doğrulanamadı." });
+
+        var userId = int.Parse(userIdClaim.Value);
+        var user = await _db.Users.FindAsync(userId);
+        
+        if (user == null)
+            return NotFound(new { success = false, message = "Kullanıcı bulunamadı." });
+
+        // Validasyon
+        if (string.IsNullOrWhiteSpace(request.FullName) || 
+            string.IsNullOrWhiteSpace(request.Email) || 
+            string.IsNullOrWhiteSpace(request.PhoneNumber))
+            return BadRequest(new { success = false, message = "Tüm alanlar gereklidir." });
+
+        // Email değiştiriliyorsa, başka kullanıcıda var mı kontrol et
+        if (request.Email != user.Email)
+        {
+            var emailExists = await _db.Users.AnyAsync(u => u.Email == request.Email && u.Id != userId);
+            if (emailExists)
+                return BadRequest(new { success = false, message = "Bu email zaten kullanılıyor." });
+        }
+
+        // Telefon değiştiriliyorsa, başka kullanıcıda var mı kontrol et
+        if (request.PhoneNumber != user.PhoneNumber)
+        {
+            var phoneExists = await _db.Users.AnyAsync(u => u.PhoneNumber == request.PhoneNumber && u.Id != userId);
+            if (phoneExists)
+                return BadRequest(new { success = false, message = "Bu telefon numarası zaten kullanılıyor." });
+        }
+
+        // Güncelle
+        user.FullName = request.FullName;
+        user.Email = request.Email;
+        user.PhoneNumber = request.PhoneNumber;
+
+        await _db.SaveChangesAsync();
+
+        return Ok(new
+        {
+            success = true,
+            message = "Profil bilgileriniz başarıyla güncellendi.",
+            user = new { user.Id, user.FullName, user.Email, user.PhoneNumber, user.Role }
+        });
+    }
+
+    // POST /api/Auth/change-password - Şifre değiştir
+    [HttpPost("change-password")]
+    public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordRequest request)
+    {
+        // Token'dan kullanıcı ID'sini al
+        var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier) 
+                          ?? User.FindFirst(System.IdentityModel.Tokens.Jwt.JwtRegisteredClaimNames.Sub);
+        
+        if (userIdClaim == null)
+            return Unauthorized(new { success = false, message = "Kullanıcı doğrulanamadı." });
+
+        var userId = int.Parse(userIdClaim.Value);
+        var user = await _db.Users.FindAsync(userId);
+        
+        if (user == null)
+            return NotFound(new { success = false, message = "Kullanıcı bulunamadı." });
+
+        // Validasyon
+        if (string.IsNullOrWhiteSpace(request.CurrentPassword) || 
+            string.IsNullOrWhiteSpace(request.NewPassword) || 
+            string.IsNullOrWhiteSpace(request.ConfirmNewPassword))
+            return BadRequest(new { success = false, message = "Tüm şifre alanları gereklidir." });
+
+        // Mevcut şifreyi kontrol et
+        var isCurrentPasswordValid = BCrypt.Net.BCrypt.Verify(request.CurrentPassword, user.PasswordHash);
+        if (!isCurrentPasswordValid)
+            return BadRequest(new { success = false, message = "Mevcut şifre hatalı." });
+
+        // Yeni şifrelerin eşleşmesini kontrol et
+        if (request.NewPassword != request.ConfirmNewPassword)
+            return BadRequest(new { success = false, message = "Yeni şifreler eşleşmiyor." });
+
+        // Şifre uzunluğu kontrolü
+        if (request.NewPassword.Length < 6)
+            return BadRequest(new { success = false, message = "Şifre en az 6 karakter olmalıdır." });
+
+        // Şifreyi güncelle
+        user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.NewPassword);
+        await _db.SaveChangesAsync();
+
+        return Ok(new { success = true, message = "Şifreniz başarıyla değiştirildi." });
     }
 
     // Token üretme fonksiyonu

@@ -35,7 +35,7 @@ namespace StayIn.Api.Controllers
             }
 
             var myListings = await _context.Listings
-                .Where(l => l.UserId.HasValue && l.UserId.Value == userId)
+                .Where(l => l.UserId.HasValue && l.UserId.Value == userId && !l.IsArchived)
                 .OrderByDescending(l => l.CreatedAt)
                 .Select(l => new
                 {
@@ -63,11 +63,63 @@ namespace StayIn.Api.Controllers
                     l.PhotoUrls,
                     l.Latitude,
                     l.Longitude,
+                    l.IsArchived,
                     l.CreatedAt
                 })
                 .ToListAsync();
 
             return Ok(new { listings = myListings });
+        }
+
+        // GET: api/MyListings/archived - Arşivlenmiş ilanları getir
+        [HttpGet("archived")]
+        public async Task<IActionResult> GetArchivedListings()
+        {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value
+                ?? User.FindFirst(System.IdentityModel.Tokens.Jwt.JwtRegisteredClaimNames.Sub)?.Value
+                ?? User.FindFirst("sub")?.Value
+                ?? User.FindFirst("userId")?.Value;
+                
+            if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out int userId))
+            {
+                return Unauthorized(new { message = "Kullanıcı kimliği bulunamadı." });
+            }
+
+            var archivedListings = await _context.Listings
+                .Where(l => l.UserId.HasValue && l.UserId.Value == userId && l.IsArchived)
+                .OrderByDescending(l => l.CreatedAt)
+                .Select(l => new
+                {
+                    l.Id,
+                    l.Title,
+                    l.Description,
+                    l.PlaceType,
+                    l.AccommodationType,
+                    l.Guests,
+                    l.Bedrooms,
+                    l.Beds,
+                    l.Bathrooms,
+                    l.Price,
+                    Address = new
+                    {
+                        l.AddressCountry,
+                        l.AddressCity,
+                        l.AddressDistrict,
+                        l.AddressStreet,
+                        l.AddressBuilding,
+                        l.AddressPostalCode,
+                        l.AddressRegion
+                    },
+                    l.Amenities,
+                    l.PhotoUrls,
+                    l.Latitude,
+                    l.Longitude,
+                    l.CreatedAt,
+                    l.IsArchived
+                })
+                .ToListAsync();
+
+            return Ok(new { listings = archivedListings });
         }
 
         // POST: api/MyListings - Yeni ilan oluştur
@@ -199,6 +251,84 @@ namespace StayIn.Api.Controllers
             await _context.SaveChangesAsync();
 
             return Ok(new { message = "İlan başarıyla silindi." });
+        }
+
+        // POST: api/MyListings/{id}/archive - İlanı arşivle/arşivden çıkar
+        [HttpPost("{id}/archive")]
+        [Authorize]
+        public async Task<IActionResult> ArchiveListing(int id)
+        {
+            try
+            {
+                var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value
+                    ?? User.FindFirst(System.IdentityModel.Tokens.Jwt.JwtRegisteredClaimNames.Sub)?.Value
+                    ?? User.FindFirst("sub")?.Value
+                    ?? User.FindFirst("userId")?.Value;
+                    
+                if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out int userId))
+                {
+                    return Unauthorized(new { message = "Kullanıcı kimliği bulunamadı." });
+                }
+                
+                var listing = await _context.Listings.FirstOrDefaultAsync(l => l.Id == id && l.UserId == userId);
+                
+                if (listing == null)
+                {
+                    return NotFound(new { message = "İlan bulunamadı" });
+                }
+                
+                // Toggle archive durumu
+                listing.IsArchived = !listing.IsArchived;
+                await _context.SaveChangesAsync();
+                
+                return Ok(new { message = listing.IsArchived ? "İlan arşivlendi" : "İlan arşivden çıkarıldı" });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Bir hata oluştu", error = ex.Message });
+            }
+        }
+
+
+
+        // POST: api/MyListings/{id}/unarchive - İlanı arşivden çıkar
+        [HttpPost("{id}/unarchive")]
+        [Authorize]
+        public async Task<IActionResult> UnarchiveListing(int id)
+        {
+            try
+            {
+                var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value
+                    ?? User.FindFirst(System.IdentityModel.Tokens.Jwt.JwtRegisteredClaimNames.Sub)?.Value
+                    ?? User.FindFirst("sub")?.Value
+                    ?? User.FindFirst("userId")?.Value;
+                    
+                if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out int userId))
+                {
+                    return Unauthorized(new { message = "Kullanıcı kimliği bulunamadı." });
+                }
+                
+                var listing = await _context.Listings.FirstOrDefaultAsync(l => l.Id == id && l.UserId == userId);
+                
+                if (listing == null)
+                {
+                    return NotFound(new { message = "İlan bulunamadı" });
+                }
+                
+                if (!listing.IsArchived)
+                {
+                    return BadRequest(new { message = "Bu ilan zaten arşivde değil" });
+                }
+                
+                listing.IsArchived = false;
+                await _context.SaveChangesAsync();
+                
+                return Ok(new { message = "İlan arşivden çıkarıldı" });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Bir hata oluştu", error = ex.Message });
+            }
         }
     }
 }

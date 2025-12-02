@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../services/api_service.dart';
 import 'AddReviewScreen.dart';
+import 'PaymentScreen.dart';
 
 class MyReservationsScreen extends StatefulWidget {
   const MyReservationsScreen({Key? key}) : super(key: key);
@@ -354,6 +355,78 @@ class _MyReservationsScreenState extends State<MyReservationsScreen> {
                                       ),
                                     ],
                                   ),
+
+                                  // Payment Button (only for approved AND future reservations that are NOT paid)
+                                  if (status.toLowerCase() == 'approved' && 
+                                      checkOutDate.isAfter(DateTime.now()) &&
+                                      reservation['isPaid'] != true) ...[
+                                    const SizedBox(height: 12),
+                                    SizedBox(
+                                      width: double.infinity,
+                                      child: ElevatedButton.icon(
+                                        onPressed: () {
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) => PaymentScreen(
+                                                reservationId: reservation['id'],
+                                                listingTitle: reservation['listingTitle'] ?? 'İlan',
+                                                totalPrice: (reservation['totalPrice'] as num).toDouble(),
+                                                checkInDate: DateTime.parse(reservation['checkInDate']),
+                                                checkOutDate: DateTime.parse(reservation['checkOutDate']),
+                                                guests: reservation['guests'] ?? 1,
+                                                onPaymentSuccess: _loadReservations,
+                                              ),
+                                            ),
+                                          );
+                                        },
+                                        icon: const Icon(Icons.payment, color: Colors.white),
+                                        label: const Text('Ödeme Yap', style: TextStyle(color: Colors.white)),
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: Colors.green[600],
+                                          elevation: 0,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+
+                                  // Payment Status Badge (if paid)
+                                  if (reservation['isPaid'] == true) ...[
+                                    const SizedBox(height: 12),
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                                      decoration: BoxDecoration(
+                                        color: Colors.green[50],
+                                        borderRadius: BorderRadius.circular(8),
+                                        border: Border.all(color: Colors.green[300]!, width: 1),
+                                      ),
+                                      child: Row(
+                                        children: [
+                                          Icon(Icons.check_circle, color: Colors.green[700], size: 20),
+                                          const SizedBox(width: 8),
+                                          Text(
+                                            'Ödeme Yapıldı',
+                                            style: TextStyle(
+                                              color: Colors.green[800],
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 14,
+                                            ),
+                                          ),
+                                          const Spacer(),
+                                          if (reservation['paymentDate'] != null)
+                                            Text(
+                                              DateTime.parse(reservation['paymentDate']).day.toString() + '/' +
+                                              DateTime.parse(reservation['paymentDate']).month.toString() + '/' +
+                                              DateTime.parse(reservation['paymentDate']).year.toString(),
+                                              style: TextStyle(
+                                                color: Colors.green[700],
+                                                fontSize: 12,
+                                              ),
+                                            ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
 
                                   // Cancel Button (only for Pending and Approved AND future/ongoing reservations)
                                   if ((status.toLowerCase() == 'pending' || status.toLowerCase() == 'approved') && 

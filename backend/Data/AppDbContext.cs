@@ -12,6 +12,9 @@ public class AppDbContext : DbContext
 
     public DbSet<User> Users => Set<User>();
     public DbSet<Listing> Listings => Set<Listing>();
+    public DbSet<Reservation> Reservations { get; set; } = null!;
+    public DbSet<Review> Reviews { get; set; } = null!;
+    public DbSet<Payment> Payments { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)   //Veritabanı tablolarının ve alanlarının detaylı yapılandırması
     {
@@ -41,6 +44,11 @@ public class AppDbContext : DbContext
             .IsRequired()
             .HasMaxLength(1000);
 
+        // Review - Her rezervasyon için sadece bir yorum yapılabilir
+        modelBuilder.Entity<Review>()
+            .HasIndex(r => r.ReservationId)
+            .IsUnique();
+
         // Örnek kullanıcılar
         modelBuilder.Entity<User>().HasData(
             new User
@@ -48,6 +56,7 @@ public class AppDbContext : DbContext
                 Id = 1,
                 FullName = "Ahmet Yılmaz",
                 Email = "ahmet@example.com",
+                PhoneNumber = "05321112233",
                 PasswordHash = "$2a$11$5Z3Z5Z3Z5Z3Z5Z3Z5Z3Z5OqK5Z3Z5Z3Z5Z3Z5Z3Z5Z3Z5Z3Z5Z3",
                 Role = "User",
                 Favorites = new List<int>()
@@ -57,6 +66,7 @@ public class AppDbContext : DbContext
                 Id = 2,
                 FullName = "Ayşe Demir",
                 Email = "ayse@stayin.dev",
+                PhoneNumber = "05334445566",
                 PasswordHash = "$2a$11$5Z3Z5Z3Z5Z3Z5Z3Z5Z3Z5OqK5Z3Z5Z3Z5Z3Z5Z3Z5Z3Z5Z3Z5Z3",
                 Role = "User",
                 Favorites = new List<int>()
@@ -66,6 +76,7 @@ public class AppDbContext : DbContext
                 Id = 3,
                 FullName = "Mehmet Kaya",
                 Email = "mehmet@stayin.dev",
+                PhoneNumber = "05347778899",
                 PasswordHash = "$2a$11$5Z3Z5Z3Z5Z3Z5Z3Z5Z3Z5OqK5Z3Z5Z3Z5Z3Z5Z3Z5Z3Z5Z3Z5Z3",
                 Role = "User",
                 Favorites = new List<int>()
@@ -75,6 +86,7 @@ public class AppDbContext : DbContext
                 Id = 4,
                 FullName = "Zeynep Şahin",
                 Email = "zeynep@stayin.dev",
+                PhoneNumber = "05352223344",
                 PasswordHash = "$2a$11$5Z3Z5Z3Z5Z3Z5Z3Z5Z3Z5OqK5Z3Z5Z3Z5Z3Z5Z3Z5Z3Z5Z3Z5Z3",
                 Role = "User",
                 Favorites = new List<int>()
@@ -84,6 +96,7 @@ public class AppDbContext : DbContext
                 Id = 5,
                 FullName = "Can Öztürk",
                 Email = "can@stayin.dev",
+                PhoneNumber = "05368889900",
                 PasswordHash = "$2a$11$5Z3Z5Z3Z5Z3Z5Z3Z5Z3Z5OqK5Z3Z5Z3Z5Z3Z5Z3Z5Z3Z5Z3Z5Z3",
                 Role = "User",
                 Favorites = new List<int>()

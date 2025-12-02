@@ -76,6 +76,9 @@ namespace StayinApi.Migrations
                     b.Property<int>("Guests")
                         .HasColumnType("INTEGER");
 
+                    b.Property<bool>("IsArchived")
+                        .HasColumnType("INTEGER");
+
                     b.Property<double?>("Latitude")
                         .HasColumnType("REAL");
 
@@ -126,6 +129,7 @@ namespace StayinApi.Migrations
                             CreatedAt = new DateTime(2024, 11, 1, 10, 0, 0, 0, DateTimeKind.Utc),
                             Description = "Çeşme'nin en güzel sahilinde, deniz manzaralı modern daire. Havuz, jakuzi ve özel plaj erişimi mevcut.",
                             Guests = 4,
+                            IsArchived = false,
                             Latitude = 38.322800000000001,
                             Longitude = 26.302499999999998,
                             PhotoUrls = "[\"https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=800\",\"https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=800\"]",
@@ -152,6 +156,7 @@ namespace StayinApi.Migrations
                             CreatedAt = new DateTime(2024, 11, 3, 14, 30, 0, 0, DateTimeKind.Utc),
                             Description = "Kalkan'da özel havuzlu, geniş bahçeli lüks villa. Muhteşem deniz manzarası ve sessiz konum.",
                             Guests = 8,
+                            IsArchived = false,
                             Latitude = 36.265599999999999,
                             Longitude = 29.408899999999999,
                             PhotoUrls = "[\"https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=800\",\"https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800\"]",
@@ -178,6 +183,7 @@ namespace StayinApi.Migrations
                             CreatedAt = new DateTime(2024, 11, 4, 9, 15, 0, 0, DateTimeKind.Utc),
                             Description = "Bodrum'un kalbinde, plaja yürüme mesafesinde modern ve konforlu konaklama. Kahvaltı dahil.",
                             Guests = 6,
+                            IsArchived = false,
                             Latitude = 37.034399999999998,
                             Longitude = 27.430499999999999,
                             PhotoUrls = "[\"https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800\",\"https://images.unsplash.com/photo-1582268611958-ebfd161ef9cf?w=800\"]",
@@ -204,6 +210,7 @@ namespace StayinApi.Migrations
                             CreatedAt = new DateTime(2024, 11, 5, 16, 45, 0, 0, DateTimeKind.Utc),
                             Description = "Abant Gölü manzaralı, doğa ile iç içe huzurlu bungalov. Şömine, veranda ve orman manzarası.",
                             Guests = 3,
+                            IsArchived = false,
                             Latitude = 40.616700000000002,
                             Longitude = 31.2667,
                             PhotoUrls = "[\"https://images.unsplash.com/photo-1587061949409-02df41d5e562?w=800\",\"https://images.unsplash.com/photo-1542718610-a1d656d1884c?w=800\"]",
@@ -229,6 +236,7 @@ namespace StayinApi.Migrations
                             CreatedAt = new DateTime(2024, 11, 2, 11, 20, 0, 0, DateTimeKind.Utc),
                             Description = "Alaçatı çarşısına 5 dakika yürüme mesafesinde otantik taş ev. Şirin bahçe ve modern iç dekorasyon.",
                             Guests = 2,
+                            IsArchived = false,
                             Latitude = 38.266599999999997,
                             Longitude = 26.3782,
                             PhotoUrls = "[\"https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800\"]",
@@ -255,6 +263,7 @@ namespace StayinApi.Migrations
                             CreatedAt = new DateTime(2024, 11, 1, 8, 30, 0, 0, DateTimeKind.Utc),
                             Description = "İstanbul Ortaköy'de Boğaz manzaralı suit oda. Spa, restoran ve özel hizmet.",
                             Guests = 2,
+                            IsArchived = false,
                             Latitude = 41.047800000000002,
                             Longitude = 29.026700000000002,
                             PhotoUrls = "[\"https://images.unsplash.com/photo-1611892440504-42a792e24d32?w=800\"]",
@@ -281,6 +290,7 @@ namespace StayinApi.Migrations
                             CreatedAt = new DateTime(2024, 11, 3, 13, 0, 0, 0, DateTimeKind.Utc),
                             Description = "Kaş merkezine 10 dakika, sonsuzluk havuzlu, 5 yatak odalı lüks villa. Muhteşem gün batımı manzarası.",
                             Guests = 10,
+                            IsArchived = false,
                             Latitude = 36.2014,
                             Longitude = 29.640999999999998,
                             PhotoUrls = "[\"https://images.unsplash.com/photo-1602343168117-bb8ffe3e2e9f?w=800\"]",
@@ -307,6 +317,7 @@ namespace StayinApi.Migrations
                             CreatedAt = new DateTime(2024, 11, 4, 10, 15, 0, 0, DateTimeKind.Utc),
                             Description = "Konyaaltı sahilinde, plaja 50m mesafede modern daire. Balkondan deniz manzarası.",
                             Guests = 3,
+                            IsArchived = false,
                             Latitude = 36.859699999999997,
                             Longitude = 30.625599999999999,
                             PhotoUrls = "[\"https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=800\"]",
@@ -332,6 +343,7 @@ namespace StayinApi.Migrations
                             CreatedAt = new DateTime(2024, 11, 2, 15, 45, 0, 0, DateTimeKind.Utc),
                             Description = "Ölüdeniz lagününe 15 dakika yürüme mesafesinde, geniş bahçeli müstakil ev.",
                             Guests = 5,
+                            IsArchived = false,
                             Latitude = 36.549999999999997,
                             Longitude = 29.116700000000002,
                             PhotoUrls = "[\"https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=800\"]",
@@ -358,6 +370,7 @@ namespace StayinApi.Migrations
                             CreatedAt = new DateTime(2024, 11, 5, 9, 0, 0, 0, DateTimeKind.Utc),
                             Description = "İzmir Konak'ta tarihi binada restore edilmiş loft daire. Şehir manzarası ve modern tasarım.",
                             Guests = 4,
+                            IsArchived = false,
                             Latitude = 38.418900000000001,
                             Longitude = 27.128699999999998,
                             PhotoUrls = "[\"https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800\"]",
@@ -384,6 +397,7 @@ namespace StayinApi.Migrations
                             CreatedAt = new DateTime(2024, 11, 3, 12, 30, 0, 0, DateTimeKind.Utc),
                             Description = "Marmaris merkezine yakın, özel havuzlu triplex villa. Deniz manzarası ve geniş teras.",
                             Guests = 6,
+                            IsArchived = false,
                             Latitude = 36.851300000000002,
                             Longitude = 28.2744,
                             PhotoUrls = "[\"https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=800\"]",
@@ -410,6 +424,7 @@ namespace StayinApi.Migrations
                             CreatedAt = new DateTime(2024, 11, 4, 14, 0, 0, 0, DateTimeKind.Utc),
                             Description = "Sapanca Gölü kenarında romantik bungalov. Şömine, jakuzi ve göl manzarası.",
                             Guests = 2,
+                            IsArchived = false,
                             Latitude = 40.689399999999999,
                             Longitude = 30.267800000000001,
                             PhotoUrls = "[\"https://images.unsplash.com/photo-1587061949409-02df41d5e562?w=800\"]",
@@ -436,6 +451,7 @@ namespace StayinApi.Migrations
                             CreatedAt = new DateTime(2024, 11, 1, 16, 20, 0, 0, DateTimeKind.Utc),
                             Description = "Moda'da nostaljik apartman dairesinde konforlu konaklama. Yürüyüş mesafesinde cafe ve restoranlar.",
                             Guests = 4,
+                            IsArchived = false,
                             Latitude = 40.987200000000001,
                             Longitude = 29.026399999999999,
                             PhotoUrls = "[\"https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=800\"]",
@@ -461,6 +477,7 @@ namespace StayinApi.Migrations
                             CreatedAt = new DateTime(2024, 11, 2, 10, 45, 0, 0, DateTimeKind.Utc),
                             Description = "Side antik kente yürüme mesafesinde, havuzlu müstakil ev. Aile ve arkadaş grupları için ideal.",
                             Guests = 7,
+                            IsArchived = false,
                             Latitude = 36.767299999999999,
                             Longitude = 31.3902,
                             PhotoUrls = "[\"https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800\"]",
@@ -487,6 +504,7 @@ namespace StayinApi.Migrations
                             CreatedAt = new DateTime(2024, 11, 5, 11, 30, 0, 0, DateTimeKind.Utc),
                             Description = "İstiklal Caddesi'ne 5 dakika, sanatçı mahallesinde bohem loft daire.",
                             Guests = 3,
+                            IsArchived = false,
                             Latitude = 41.031700000000001,
                             Longitude = 28.978300000000001,
                             PhotoUrls = "[\"https://images.unsplash.com/photo-1493809842364-78817add7ffb?w=800\"]",
@@ -513,6 +531,7 @@ namespace StayinApi.Migrations
                             CreatedAt = new DateTime(2024, 11, 1, 9, 0, 0, 0, DateTimeKind.Utc),
                             Description = "Gökova Körfezi'nde özel iskele ve tekne bağlama imkanı olan mega villa. Sonsuzluk havuzu ve özel plaj.",
                             Guests = 12,
+                            IsArchived = false,
                             Latitude = 37.045299999999997,
                             Longitude = 28.321100000000001,
                             PhotoUrls = "[\"https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=800\"]",
@@ -539,6 +558,7 @@ namespace StayinApi.Migrations
                             CreatedAt = new DateTime(2024, 11, 3, 7, 30, 0, 0, DateTimeKind.Utc),
                             Description = "Göreme'de otantik mağara otel odası. Balon turu dahil, terasta kahvaltı servisi.",
                             Guests = 2,
+                            IsArchived = false,
                             Latitude = 38.643099999999997,
                             Longitude = 34.828099999999999,
                             PhotoUrls = "[\"https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=800\"]",
@@ -565,6 +585,7 @@ namespace StayinApi.Migrations
                             CreatedAt = new DateTime(2024, 11, 4, 13, 15, 0, 0, DateTimeKind.Utc),
                             Description = "İzmir Alsancak'ta marina ve deniz manzaralı modern daire. Gece hayatına yürüme mesafesinde.",
                             Guests = 5,
+                            IsArchived = false,
                             Latitude = 38.438200000000002,
                             Longitude = 27.1463,
                             PhotoUrls = "[\"https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800\"]",
@@ -591,6 +612,7 @@ namespace StayinApi.Migrations
                             CreatedAt = new DateTime(2024, 11, 2, 8, 0, 0, 0, DateTimeKind.Utc),
                             Description = "Uludağ'da piste yakın modern şale. Şömine, jakuzi ve dağ manzarası.",
                             Guests = 4,
+                            IsArchived = false,
                             Latitude = 40.102499999999999,
                             Longitude = 29.087800000000001,
                             PhotoUrls = "[\"https://images.unsplash.com/photo-1542718610-a1d656d1884c?w=800\"]",
@@ -616,6 +638,7 @@ namespace StayinApi.Migrations
                             CreatedAt = new DateTime(2024, 11, 5, 10, 0, 0, 0, DateTimeKind.Utc),
                             Description = "Eski Datça'da restore edilmiş otantik taş ev. Bahçe, veranda ve sessiz konum.",
                             Guests = 6,
+                            IsArchived = false,
                             Latitude = 36.726399999999998,
                             Longitude = 27.688099999999999,
                             PhotoUrls = "[\"https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800\"]",
@@ -642,6 +665,7 @@ namespace StayinApi.Migrations
                             CreatedAt = new DateTime(2024, 11, 1, 12, 0, 0, 0, DateTimeKind.Utc),
                             Description = "Belek'te golf sahası manzaralı, özel havuzlu lüks villa. Spa ve fitness merkezi yakın.",
                             Guests = 8,
+                            IsArchived = false,
                             Latitude = 36.862499999999997,
                             Longitude = 31.055299999999999,
                             PhotoUrls = "[\"https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=800\"]",
@@ -668,6 +692,7 @@ namespace StayinApi.Migrations
                             CreatedAt = new DateTime(2024, 11, 3, 15, 30, 0, 0, DateTimeKind.Utc),
                             Description = "Gümbet plajına 2 dakika, site içinde havuzlu modern daire.",
                             Guests = 3,
+                            IsArchived = false,
                             Latitude = 37.030299999999997,
                             Longitude = 27.407800000000002,
                             PhotoUrls = "[\"https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=800\"]",
@@ -693,6 +718,7 @@ namespace StayinApi.Migrations
                             CreatedAt = new DateTime(2024, 11, 4, 11, 45, 0, 0, DateTimeKind.Utc),
                             Description = "Assos antik limanına 10 dakika, köy evinde huzurlu tatil. Bahçe ve deniz manzarası.",
                             Guests = 5,
+                            IsArchived = false,
                             Latitude = 39.491900000000001,
                             Longitude = 26.338899999999999,
                             PhotoUrls = "[\"https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=800\"]",
@@ -719,6 +745,7 @@ namespace StayinApi.Migrations
                             CreatedAt = new DateTime(2024, 11, 5, 8, 15, 0, 0, DateTimeKind.Utc),
                             Description = "Şirince köyünde tarihi butik otel odası. Şarap tadımı ve kahvaltı dahil.",
                             Guests = 2,
+                            IsArchived = false,
                             Latitude = 37.945599999999999,
                             Longitude = 27.448899999999998,
                             PhotoUrls = "[\"https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800\"]",
@@ -745,6 +772,7 @@ namespace StayinApi.Migrations
                             CreatedAt = new DateTime(2024, 11, 2, 14, 20, 0, 0, DateTimeKind.Utc),
                             Description = "Bitez'de mandalina bahçeleri arasında, denize yakın özel havuzlu villa.",
                             Guests = 10,
+                            IsArchived = false,
                             Latitude = 37.0167,
                             Longitude = 27.383299999999998,
                             PhotoUrls = "[\"https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800\"]",
@@ -771,6 +799,7 @@ namespace StayinApi.Migrations
                             CreatedAt = new DateTime(2024, 11, 3, 16, 0, 0, 0, DateTimeKind.Utc),
                             Description = "Kleopatra plajına 100m, deniz manzaralı balkonlu modern daire.",
                             Guests = 4,
+                            IsArchived = false,
                             Latitude = 36.543300000000002,
                             Longitude = 31.985600000000002,
                             PhotoUrls = "[\"https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=800\"]",
@@ -797,6 +826,7 @@ namespace StayinApi.Migrations
                             CreatedAt = new DateTime(2024, 11, 1, 7, 0, 0, 0, DateTimeKind.Utc),
                             Description = "Ayder'de dere kenarında ahşap dağ evi. Şömine, doğa ve huzur.",
                             Guests = 2,
+                            IsArchived = false,
                             Latitude = 40.966700000000003,
                             Longitude = 40.916699999999999,
                             PhotoUrls = "[\"https://images.unsplash.com/photo-1587061949409-02df41d5e562?w=800\"]",
@@ -823,6 +853,7 @@ namespace StayinApi.Migrations
                             CreatedAt = new DateTime(2024, 11, 4, 9, 30, 0, 0, DateTimeKind.Utc),
                             Description = "Kaleiçi'nde restore edilmiş tarihi binada modern daire. Marina ve müzelere yürüme mesafesinde.",
                             Guests = 3,
+                            IsArchived = false,
                             Latitude = 36.884099999999997,
                             Longitude = 30.7056,
                             PhotoUrls = "[\"https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800\"]",
@@ -849,6 +880,7 @@ namespace StayinApi.Migrations
                             CreatedAt = new DateTime(2024, 11, 2, 13, 45, 0, 0, DateTimeKind.Utc),
                             Description = "Ladies Beach'e 5 dakika, özel havuzlu ve bahçeli geniş villa.",
                             Guests = 9,
+                            IsArchived = false,
                             Latitude = 37.857500000000002,
                             Longitude = 27.258099999999999,
                             PhotoUrls = "[\"https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=800\"]",
@@ -857,6 +889,149 @@ namespace StayinApi.Migrations
                             Title = "Kuşadası Ladies Beach Villa",
                             UserId = 3
                         });
+                });
+
+            modelBuilder.Entity("StayIn.Api.Models.Payment", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("CardHolder")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("CardNumber")
+                        .IsRequired()
+                        .HasMaxLength(4)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ExpiryMonth")
+                        .IsRequired()
+                        .HasMaxLength(2)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ExpiryYear")
+                        .IsRequired()
+                        .HasMaxLength(4)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("PaymentDate")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("ReservationId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("TransactionId")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ReservationId")
+                        .IsUnique();
+
+                    b.ToTable("Payments");
+                });
+
+            modelBuilder.Entity("StayIn.Api.Models.Reservation", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("CheckInDate")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("CheckOutDate")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("GuestId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("Guests")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("HostId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("IsPaid")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("ListingId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime?>("PaymentDate")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("ResponsedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal>("TotalPrice")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("TransactionId")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("GuestId");
+
+                    b.HasIndex("HostId");
+
+                    b.HasIndex("ListingId");
+
+                    b.ToTable("Reservations");
+                });
+
+            modelBuilder.Entity("StayIn.Api.Models.Review", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Comment")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("GuestId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("ListingId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("Rating")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("ReservationId")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("GuestId");
+
+                    b.HasIndex("ListingId");
+
+                    b.HasIndex("ReservationId")
+                        .IsUnique();
+
+                    b.ToTable("Reviews");
                 });
 
             modelBuilder.Entity("StayIn.Api.Models.User", b =>
@@ -878,6 +1053,10 @@ namespace StayinApi.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<string>("PasswordHash")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("PhoneNumber")
                         .IsRequired()
                         .HasColumnType("TEXT");
 
@@ -906,6 +1085,7 @@ namespace StayinApi.Migrations
                             Favorites = "[]",
                             FullName = "Ahmet Yılmaz",
                             PasswordHash = "$2a$11$5Z3Z5Z3Z5Z3Z5Z3Z5Z3Z5OqK5Z3Z5Z3Z5Z3Z5Z3Z5Z3Z5Z3Z5Z3",
+                            PhoneNumber = "05321112233",
                             Role = "User"
                         },
                         new
@@ -915,6 +1095,7 @@ namespace StayinApi.Migrations
                             Favorites = "[]",
                             FullName = "Ayşe Demir",
                             PasswordHash = "$2a$11$5Z3Z5Z3Z5Z3Z5Z3Z5Z3Z5OqK5Z3Z5Z3Z5Z3Z5Z3Z5Z3Z5Z3Z5Z3",
+                            PhoneNumber = "05334445566",
                             Role = "User"
                         },
                         new
@@ -924,6 +1105,7 @@ namespace StayinApi.Migrations
                             Favorites = "[]",
                             FullName = "Mehmet Kaya",
                             PasswordHash = "$2a$11$5Z3Z5Z3Z5Z3Z5Z3Z5Z3Z5OqK5Z3Z5Z3Z5Z3Z5Z3Z5Z3Z5Z3Z5Z3",
+                            PhoneNumber = "05347778899",
                             Role = "User"
                         },
                         new
@@ -933,6 +1115,7 @@ namespace StayinApi.Migrations
                             Favorites = "[]",
                             FullName = "Zeynep Şahin",
                             PasswordHash = "$2a$11$5Z3Z5Z3Z5Z3Z5Z3Z5Z3Z5OqK5Z3Z5Z3Z5Z3Z5Z3Z5Z3Z5Z3Z5Z3",
+                            PhoneNumber = "05352223344",
                             Role = "User"
                         },
                         new
@@ -942,6 +1125,7 @@ namespace StayinApi.Migrations
                             Favorites = "[]",
                             FullName = "Can Öztürk",
                             PasswordHash = "$2a$11$5Z3Z5Z3Z5Z3Z5Z3Z5Z3Z5OqK5Z3Z5Z3Z5Z3Z5Z3Z5Z3Z5Z3Z5Z3",
+                            PhoneNumber = "05368889900",
                             Role = "User"
                         });
                 });
@@ -953,6 +1137,81 @@ namespace StayinApi.Migrations
                         .HasForeignKey("UserId");
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("StayIn.Api.Models.Payment", b =>
+                {
+                    b.HasOne("StayIn.Api.Models.Reservation", "Reservation")
+                        .WithOne("Payment")
+                        .HasForeignKey("StayIn.Api.Models.Payment", "ReservationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Reservation");
+                });
+
+            modelBuilder.Entity("StayIn.Api.Models.Reservation", b =>
+                {
+                    b.HasOne("StayIn.Api.Models.User", "Guest")
+                        .WithMany()
+                        .HasForeignKey("GuestId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("StayIn.Api.Models.User", "Host")
+                        .WithMany()
+                        .HasForeignKey("HostId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("StayIn.Api.Models.Listing", "Listing")
+                        .WithMany()
+                        .HasForeignKey("ListingId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Guest");
+
+                    b.Navigation("Host");
+
+                    b.Navigation("Listing");
+                });
+
+            modelBuilder.Entity("StayIn.Api.Models.Review", b =>
+                {
+                    b.HasOne("StayIn.Api.Models.User", "Guest")
+                        .WithMany()
+                        .HasForeignKey("GuestId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("StayIn.Api.Models.Listing", "Listing")
+                        .WithMany("Reviews")
+                        .HasForeignKey("ListingId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("StayIn.Api.Models.Reservation", "Reservation")
+                        .WithMany()
+                        .HasForeignKey("ReservationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Guest");
+
+                    b.Navigation("Listing");
+
+                    b.Navigation("Reservation");
+                });
+
+            modelBuilder.Entity("StayIn.Api.Models.Listing", b =>
+                {
+                    b.Navigation("Reviews");
+                });
+
+            modelBuilder.Entity("StayIn.Api.Models.Reservation", b =>
+                {
+                    b.Navigation("Payment");
                 });
 
             modelBuilder.Entity("StayIn.Api.Models.User", b =>

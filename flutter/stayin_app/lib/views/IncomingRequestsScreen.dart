@@ -287,6 +287,52 @@ class _IncomingRequestsScreenState extends State<IncomingRequestsScreen> {
                                     ],
                                   ),
 
+                                  // Payment Status Badge (for approved reservations)
+                                  if (status.toLowerCase() == 'approved') ...[
+                                    const SizedBox(height: 12),
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
+                                      decoration: BoxDecoration(
+                                        color: request['isPaid'] == true ? Colors.green[50] : Colors.orange[50],
+                                        borderRadius: BorderRadius.circular(8),
+                                        border: Border.all(
+                                          color: request['isPaid'] == true ? Colors.green[300]! : Colors.orange[300]!,
+                                          width: 1,
+                                        ),
+                                      ),
+                                      child: Row(
+                                        children: [
+                                          Icon(
+                                            request['isPaid'] == true ? Icons.check_circle : Icons.schedule,
+                                            color: request['isPaid'] == true ? Colors.green[700] : Colors.orange[700],
+                                            size: 18,
+                                          ),
+                                          const SizedBox(width: 8),
+                                          Text(
+                                            request['isPaid'] == true ? 'Ödeme Yapıldı' : 'Ödeme Bekleniyor',
+                                            style: TextStyle(
+                                              color: request['isPaid'] == true ? Colors.green[800] : Colors.orange[800],
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 13,
+                                            ),
+                                          ),
+                                          if (request['isPaid'] == true && request['paymentDate'] != null) ...[
+                                            const Spacer(),
+                                            Text(
+                                              DateTime.parse(request['paymentDate']).day.toString() + '/' +
+                                              DateTime.parse(request['paymentDate']).month.toString() + '/' +
+                                              DateTime.parse(request['paymentDate']).year.toString(),
+                                              style: TextStyle(
+                                                color: Colors.green[700],
+                                                fontSize: 12,
+                                              ),
+                                            ),
+                                          ],
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+
                                   // Action Buttons (only for Pending)
                                   if (status.toLowerCase() == 'pending') ...[
                                     const SizedBox(height: 12),

@@ -20,17 +20,32 @@ builder.Services.AddDbContext<AppDbContext>(opts =>
 builder.Services.AddScoped<IEmailService, MockEmailService>();
 
 // CORS (Vue 5173, 5174 için izin)
+// CORS - Tüm localhost portlarına izin ver
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("DevCors", policy =>
     {
-        policy.WithOrigins("http://localhost:5173", "http://127.0.0.1:5173", 
-                          "http://localhost:5174", "http://127.0.0.1:5174")
-              .AllowAnyHeader()
-              .AllowAnyMethod()
-              .AllowCredentials();
+        policy.SetIsOriginAllowed(origin =>
+        {
+            if (string.IsNullOrWhiteSpace(origin)) return false;
+            
+            // localhost veya 127.0.0.1 ile başlayan tüm portlara izin ver
+            if (origin.StartsWith("http://localhost:") || 
+                origin.StartsWith("http://127.0.0.1:") ||
+                origin.StartsWith("https://localhost:") || 
+                origin.StartsWith("https://127.0.0.1:"))
+            {
+                return true;
+            }
+            
+            return false;
+        })
+        .AllowAnyHeader()
+        .AllowAnyMethod()
+        .AllowCredentials();
     });
 });
+
 
 // JWT ayarları
 var jwtSection = builder.Configuration.GetSection("Jwt");
@@ -84,12 +99,16 @@ using (var scope = app.Services.CreateScope())
         {
             FullName = "Admin User",
             Email = "admin@stayin.dev",
+            PhoneNumber = "+90 555 123 4567",
             PasswordHash = BCrypt.Net.BCrypt.HashPassword("123456"),
             Role = "Admin"
         };
         db.Users.Add(admin);
         db.SaveChanges();
     }
+    
+    // Review seed data ekle
+    await SeedReviews.SeedData(db);
 }
 
 app.Run();

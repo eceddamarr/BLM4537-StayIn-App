@@ -26,5 +26,9 @@ namespace StayIn.Api.Models
         public double? Latitude { get; set; }
         public double? Longitude { get; set; }
         public DateTime CreatedAt { get; set; }
+        public bool IsArchived { get; set; } = false;
+        
+        // Navigation properties
+        public List<Review> Reviews { get; set; } = new List<Review>();
     }
 }

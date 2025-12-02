@@ -8,12 +8,10 @@ public class User
 
     public string FullName { get; set; } = default!;
     public string Email { get; set; } = default!;
-
+    public string PhoneNumber { get; set; } = default!; 
     // hashlenmiş şifre
     public string PasswordHash { get; set; } = default!;
-
     public string Role { get; set; } = "User";
-
     // Email doğrulama / şifre sıfırlama için
     public string? VerificationCode { get; set; }
     public DateTime? VerificationCodeExpires { get; set; }
