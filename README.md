@@ -1,89 +1,78 @@
 
 # StayInApp
 
-StayInApp, Flutter ile geliştirilmiş bir konaklama ve ilan yönetim uygulamasıdır. Kullanıcılar ev, oda veya farklı konaklama türlerinde ilan oluşturabilir, düzenleyebilir, favorilere ekleyebilir ve rezervasyon yapabilir. Uygulama, .NET tabanlı bir backend API ile tam entegre çalışır.
+Flutter ve .NET 9.0 ile geliştirilmiş tam özellikli konaklama yönetim uygulaması. Kullanıcılar ilan oluşturabilir, rezervasyon yapabilir, yorum ekleyebilir ve güvenli ödeme gerçekleştirebilir.
 
-## Genel Yapı
+## Teknolojiler
 
-- **Frontend:** Flutter (Dart)
-- **Backend:** .NET API (RESTful)
-- **Mobil Platformlar:** Android, iOS, Web, Windows, MacOS, Linux
-- **Harita Servisi:** OpenStreetMap (Nominatim API)
-- **Fotoğraf Yönetimi:** Base64 ve URL desteği
+- **Frontend:** Flutter (Android, iOS, Web, Windows, MacOS, Linux)
+- **Backend:** .NET 9.0 Web API + Entity Framework Core
+- **Kimlik Doğrulama:** JWT Bearer Token
+- **Harita:** OpenStreetMap (Nominatim API)
+- **Email:** Mock Service
 
-## Klasör Yapısı
+## Proje Yapısı
 
-- `lib/`
-  - `main.dart`: Uygulamanın giriş noktası
-  - `services/`: API servisleri (auth, ilan, favori, kullanıcı işlemleri)
-  - `views/`: Ekranlar (Ana sayfa, ilan detay, favoriler, ilan oluşturma/düzenleme)
-  - `widgets/`: Ortak widgetlar (alt menü, özel bileşenler)
-- `assets/`: Uygulama varlıkları (fotoğraflar, ikonlar, fontlar)
-- `android/`, `ios/`, `web/`, `windows/`, `macos/`, `linux/`: Platforma özel dosyalar
+### Backend
+- `Controllers/`: Auth, Listings, Reservation, Reviews, Payments, Favorites, User
+- `Models/`: User, Listing, Reservation, Review, Payment
+- `Services/`: Email servisi
+- `Migrations/`: Veritabanı migration'ları
 
-## Temel Özellikler
+### Frontend
+- `services/api_service.dart`: API entegrasyonları
+- `views/`: Tüm ekranlar (Home, Login, Listing, Reservation, Review, Payment, Profile)
+- `widgets/`: Ortak bileşenler
 
-### 1. İlan Oluşturma ve Düzenleme
-- Adım adım wizard ile ilan oluşturma
-- Konum seçimi ve harita entegrasyonu
-- Otomatik adres doldurma (Nominatim API)
-- Fotoğraf ekleme (galeriden çoklu seçim, base64 ve URL desteği)
-- Fiyat, başlık, açıklama, oda/banyo/kişi sayısı, olanaklar
+## Özellikler
 
-### 2. İlan Listeleme ve Detay
-- Tüm ilanları listeleme
-- Detay ekranında fotoğraf galerisi, açıklama, konum, olanaklar
-- İlan sahibinin bilgileri
-- Favori ekleme/çıkarma
-- Rezervasyon akışı (giriş/çıkış tarihi, misafir sayısı, toplam ücret)
+### Kimlik Doğrulama
+- Kullanıcı kayıt/giriş, JWT token
+- Email ile şifre sıfırlama
+- Profil ve şifre yönetimi
 
-### 3. Favoriler
-- İlanları favorilere ekleme/çıkarma
-- Favori ilanları listeleme
-- Favori işlemleri backend API ile tam entegre
+### İlan Yönetimi
+- Wizard ile ilan oluşturma/düzenleme
+- Harita entegrasyonu ve konum seçimi
+- Çoklu fotoğraf yükleme
+- Favori sistemi
 
-### 4. Kullanıcı İşlemleri
-- Giriş/çıkış akışı
-- Kullanıcıya özel ilanlar (İlanlarım ekranı)
-- İlan düzenleme/silme
+### Rezervasyon
+- Tarih bazlı rezervasyon ve çakışma kontrolü
+- Otomatik fiyat hesaplama
+- Durum yönetimi (Beklemede, Onaylandı, Reddedildi, İptal)
+- Ev sahibi onay/red sistemi
 
-### 5. Harita ve Konum
-- OpenStreetMap tabanlı harita
-- Konum arama ve seçme
-- Koordinattan adres bilgisi alma
-- Seçilen konumu haritada pin ile gösterme
+### Yorum ve Değerlendirme
+- 1-5 yıldız puan sistemi
+- Tamamlanmış rezervasyonlar için yorum
+- Düzenleme ve silme
 
-### 6. Fotoğraf Yönetimi
-- Fotoğraflar hem base64 hem de URL olarak gösterilebilir
-- Fotoğraf ekleme, silme, önizleme
+### Ödeme
+- Güvenli kredi kartı ödemesi
+- Transaction ID takibi
+- Ödeme geçmişi
 
-## API Entegrasyonu
-- Tüm işlemler (ilan, favori, kullanıcı, rezervasyon) .NET API üzerinden yapılır
-- HTTP istekleri için `http` paketi kullanılır
-- JSON parse işlemleri `dart:convert` ile yapılır
-- Token tabanlı kimlik doğrulama
+## API Endpoint'leri
 
-## Kullanılan Paketler
-- `http`: API istekleri
-- `flutter_map`: Harita entegrasyonu
-- `latlong2`: Koordinat yönetimi
-- `image_picker`: Fotoğraf seçimi
-- `typeahead`: Adres arama autocomplete
+- **Auth:** register, login, forgot-password, reset-password, change-password, update-profile
+- **Reservation:** create, my-reservations, incoming-requests, approve, reject, cancel
+- **Reviews:** create, listing reviews, my-reviews, update, delete
+- **Payments:** process payment, payment details, my-payments
+- **Listings:** list, create, update, delete, my-listings
+- **Favorites:** add, remove, list
 
-## Geliştirici Notları
-- Kodda fonksiyon başı açıklama yorumları ile okunabilirlik artırılmıştır
-- Mock/sahte veri kaldırılmış, tüm akışlar backend ile entegre
-- Adres ve fotoğraf alanları otomatik doldurulabilir ve düzenlenebilir
-- Tüm akışlar test edilmiş, hata bulunmamıştır
 
 ## Kurulum
-1. Flutter SDK kurulu olmalı
-2. Gerekli paketler yüklenmeli:
-	```sh
-	flutter pub get
-	```
-3. Backend API adresi ve portu doğru şekilde ayarlanmalı
-4. Uygulama aşağıdaki komutla başlatılabilir:
-	```sh
-	flutter run
-	```
+
+**Backend:** .NET 9.0 SDK + SQL Server kurulu olmalı. `appsettings.json` ayarları yapıldıktan sonra:
+```sh
+dotnet ef database update
+dotnet run
+```
+
+**Frontend:** Flutter SDK kurulu olmalı. `api_service.dart` dosyasında backend adresi ayarlandıktan sonra:
+```sh
+flutter pub get
+flutter run
+```

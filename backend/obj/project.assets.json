@@ -5446,11 +5446,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\ecenu\\Desktop\\StayinApi\\StayinApi.csproj",
+      "projectUniqueName": "C:\\Users\\ecenu\\OneDrive\\Belgeler\\GitHub\\BLM4537-StayIn-App\\backend\\StayinApi.csproj",
       "projectName": "StayinApi",
-      "projectPath": "C:\\Users\\ecenu\\Desktop\\StayinApi\\StayinApi.csproj",
+      "projectPath": "C:\\Users\\ecenu\\OneDrive\\Belgeler\\GitHub\\BLM4537-StayIn-App\\backend\\StayinApi.csproj",
       "packagesPath": "C:\\Users\\ecenu\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\ecenu\\Desktop\\StayinApi\\obj\\",
+      "outputPath": "C:\\Users\\ecenu\\OneDrive\\Belgeler\\GitHub\\BLM4537-StayIn-App\\backend\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

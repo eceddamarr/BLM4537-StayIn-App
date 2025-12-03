@@ -1,6 +1,0 @@
-@StayinApi_HostAddress = http://localhost:5211
-
-GET {{StayinApi_HostAddress}}/weatherforecast/
-Accept: application/json
-
-###

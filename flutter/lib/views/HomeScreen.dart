@@ -25,9 +25,11 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   late bool isLoggedIn;
   List<Map<String, dynamic>> _properties = [];
+  List<Map<String, dynamic>> _allProperties = []; // Tüm ilanlar (filtrelemeden önce)
   bool _isLoading = true;
   Set<int> _favoriteIds = {};   // Favori ilan ID'leri
   Set<int> _myListingIds = {}; // Kullanıcının kendi ilan ID'leri
+  final TextEditingController _searchController = TextEditingController();
   
   // Widget ilk oluşturulduğunda çalışır, başlangıç verilerini yükler
   @override
@@ -35,6 +37,12 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
     isLoggedIn = widget.isLoggedIn;
     _loadData();
+  }
+  
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
   }
 
   // Kullanıcıya ait ilanları ve tüm ilanları yükler
@@ -211,6 +219,7 @@ class _HomeScreenState extends State<HomeScreen> {
         );
         
         setState(() {
+          _allProperties = propertiesList;
           _properties = propertiesList;
           _isLoading = false;
         });
@@ -232,6 +241,22 @@ class _HomeScreenState extends State<HomeScreen> {
   
   String demoUsername = 'Demo Kullanıcı';
   String demoEmail = 'demo@email.com';
+  
+  // Şehir araması yapar
+  void _searchByCity(String query) {
+    setState(() {
+      if (query.isEmpty) {
+        // Arama boşsa tüm ilanları göster
+        _properties = _allProperties;
+      } else {
+        // Arama varsa şehir adına göre filtrele (case-insensitive)
+        _properties = _allProperties.where((property) {
+          final location = property['location'] as String;
+          return location.toLowerCase().contains(query.toLowerCase());
+        }).toList();
+      }
+    });
+  }
 
 
   // Fotoğraf URL'sine göre uygun image widget'ı döndürür
@@ -353,10 +378,21 @@ class _HomeScreenState extends State<HomeScreen> {
                         ],
                       ),
                       child: TextField(
+                        controller: _searchController,
+                        onChanged: _searchByCity,
                         decoration: InputDecoration(
-                          hintText: "Nereye gitmek istersiniz?",
+                          hintText: "Şehir ara",
                           hintStyle: TextStyle(color: Colors.grey[600], fontSize: 14),
                           prefixIcon: Icon(Icons.search, color: Colors.grey[600]),
+                          suffixIcon: _searchController.text.isNotEmpty
+                              ? IconButton(
+                                  icon: Icon(Icons.clear, color: Colors.grey[600]),
+                                  onPressed: () {
+                                    _searchController.clear();
+                                    _searchByCity('');
+                                  },
+                                )
+                              : null,
                           border: InputBorder.none,
                           contentPadding: const EdgeInsets.symmetric(vertical: 12),
                         ),
@@ -374,9 +410,9 @@ class _HomeScreenState extends State<HomeScreen> {
               padding: const EdgeInsets.all(16.0),
               child: Row(
                 children: [
-                  const Text(
-                    'Popüler İlanlar',
-                    style: TextStyle(
+                  Text(
+                    _searchController.text.isEmpty ? 'Popüler İlanlar' : 'Arama Sonuçları',
+                    style: const TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
                     ),
@@ -398,10 +434,26 @@ class _HomeScreenState extends State<HomeScreen> {
               child: _isLoading
                   ? const Center(child: CircularProgressIndicator())
                   : _properties.isEmpty
-                      ? const Center(
-                          child: Text(
-                            'Henüz ilan bulunmuyor',
-                            style: TextStyle(fontSize: 16, color: Colors.grey),
+                      ? Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.search_off, size: 64, color: Colors.grey[400]),
+                              const SizedBox(height: 16),
+                              Text(
+                                _searchController.text.isEmpty 
+                                    ? 'Henüz ilan bulunmuyor'
+                                    : 'Arama sonucu bulunamadı',
+                                style: const TextStyle(fontSize: 16, color: Colors.grey),
+                              ),
+                              if (_searchController.text.isNotEmpty) ...[
+                                const SizedBox(height: 8),
+                                Text(
+                                  '"${_searchController.text}" için sonuç yok',
+                                  style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                                ),
+                              ],
+                            ],
                           ),
                         )
                       : ListView.builder(
